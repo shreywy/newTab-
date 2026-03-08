@@ -1,95 +1,106 @@
-# Gemini New Tab ✦
+# newTab+
 
-[![Firefox Add-on](https://img.shields.io/badge/Get_it_on-Firefox_Add--ons-FF7139?style=for-the-badge&logo=firefox-browser)](https://addons.mozilla.org/en-US/firefox/addon/new-tab-gemini-start-page/)
-
+A fast, beautiful new tab page for Chrome and Firefox. Replaces your default new tab with a glassmorphism dashboard — quick-launch tiles, live weather, and full visual customization.
 
 ![Banner](img/banner.png)
 
-> A simple AI-powered start page for Firefox.
-
-**Gemini New Tab** replaces your default new tab page with a customizable productivity dashboard. It integrates Google's Gemini 2.0 Flash API directly into your browser, allowing you to ask questions, plan your day, and get summaries without switching tabs.
+---
 
 ## Features
 
-* **Integrated AI Chat:** Chat with Google Gemini directly from your start page.
-* **Local Memory:** The AI remembers your preferences and context (stored locally) to give personalized answers. 
-  * Start a sentance with 'Remember' to easily add something to persistent memory, up to a customizable amount of memories.
-* **Speed Dial:** Pin your most visited sites with custom colors and icons.
-* **Dynamic Theming:** Choose from presets like *Deep Dark*, *Nebula*, or create your own custom theme.
-* **Rich Markdown Support:** Responses are rendered with full Markdown (tables, code blocks, bold/italics).
-* **Privacy First:** Your API key and chat history never leave your device (except to reach Google's API). No data is sent to the developer.
+- **Quick-launch tile grid** — Add, edit, and drag-to-reorder bookmarks as icon tiles
+- **Auto-icons** — Automatically fetches favicons from any URL; paste a custom image URL to override
+- **Live weather widget** — Current conditions + hover to expand 5-day forecast (uses open-meteo, no API key needed)
+- **Backgrounds** — Solid color, CSS gradient, or image URL with blur and darkness controls
+- **Shader overlays** — Aurora (WebGL/THREE.js) or Falling Lines (CSS animation) layered on top of the background
+- **10 color presets** — Catppuccin Mocha, Nord, Dracula, Tokyo Night, Gruvbox, and more
+- **8 gradient presets** — Cosmic, Northern, Ocean Deep, Purple Haze, and more
+- **Tile customization** — Icon size, column count, and gap sliders
+- **Import / Export links** — Save and restore your tiles as a JSON file; use an export as a template
+- **Staggered entrance animation** — Everything gracefully fades in on each new tab open
+- **No telemetry, no accounts** — All data stored locally via `chrome.storage.local`
 
 ---
 
-## Screenshots
+## Installation
 
-| AI Chat & Markdown | Settings & Theming |
-|:---:|:---:|
-| ![Chat](img/chat.png) | ![Settings](img/themes.png) |
+### Load as Unpacked Extension (Chrome / Edge)
 
----
+1. Clone or download this repo
+2. Install dependencies and build:
+   ```bash
+   npm install
+   npm run build
+   ```
+3. Open `chrome://extensions` → enable **Developer mode** → **Load unpacked** → select this folder
 
-##  Installation
+### Firefox
 
-### Option 1: Firefox Add-ons Store (Recommended)
-The easiest way to install is via the official Mozilla store:
-[**Download for Firefox**](https://addons.mozilla.org/en-US/firefox/addon/new-tab-gemini-start-page/)
-
-### Option 2: Build from Source
-If you are a developer or want to customize the code:
-
-1.  **Clone the repository**
-    ```bash
-    git clone [https://github.com/shreywy/newTabGemini.git](https://github.com/shreywy/newTabGemini.git)
-    cd newTabGemini
-    ```
-
-2.  **Install Dependencies**
-    This project uses Tailwind CSS v3.
-    ```bash
-    npm install
-    ```
-
-3.  **Build the CSS**
-    ```bash
-    npm run build
-    ```
-
-4.  **Load in Firefox**
-    * Open `about:debugging` in Firefox.
-    * Click **This Firefox** > **Load Temporary Add-on...**
-    * Select the `manifest.json` file from the project folder.
+1. Open `about:debugging` → **This Firefox** → **Load Temporary Add-on**
+2. Select `manifest.json` from this folder
 
 ---
 
-## Setup & Configuration
+## Usage
 
-This extension requires a **Google Gemini API Key** to function. It is free to generate.
+- **Add tiles** — Click the pencil icon (bottom-right corner, appears on hover) to enter edit mode, then click **+**
+- **Edit / delete a tile** — In edit mode, hover a tile and click the pencil badge
+- **Reorder tiles** — Drag tiles in edit mode
+- **Customize appearance** — In edit mode, click the settings icon to open the appearance panel
+- **Import / Export links** — In the settings panel under **Links**, export your current tiles as `newtab-links.json` or import a previously exported file
+- **Weather** — Hover the weather widget (top-right) to see a 5-day forecast
 
-1.  Go to [Google AI Studio](https://aistudio.google.com/) and get an API Key. (The free tier will work)
-2.  Open a new tab in Firefox.
-3.  Enable edit mode in the bottom footer of the left panel (hover panel to see), then click the **Settings (Gear)** icon.
-4.  Paste your key into the **API Key** field.
-5. (Optional) Adjust the **Context Window** in settings to control how many previous messages the AI "remembers."
-6. (Optional) Add pinned shortcuts by clicking the + icon, with edit mode enabled. Click on shortcuts to edit or delete shortcuts. 
+### Link Template Format
+
+The exported JSON can be edited and re-imported. Each entry follows this structure:
+
+```json
+[
+  {
+    "name": "GitHub",
+    "url": "https://github.com",
+    "icon": "",
+    "iconUrl": "https://www.google.com/s2/favicons?domain=github.com&sz=64",
+    "color": "#6e40c9"
+  }
+]
+```
+
+- `icon` — emoji character (used when iconMode is "emoji"), otherwise leave empty
+- `iconUrl` — image URL for the tile icon (auto-filled from favicon service, or paste any image URL)
+- `color` — hex color used for the tile background tint and letter fallback
 
 ---
 
-## Tech Used
+## Tech Stack
 
-* **Frontend:** HTML5, Vanilla JavaScript
-* **Styling:** Tailwind CSS (via CLI)
-* **API:** Google Generative AI (Gemini 2.0 Flash)
-* **Storage:** Firefox `browser.storage.local` API
+| Layer | Technology |
+|---|---|
+| UI framework | React 18 |
+| Animations | framer-motion |
+| Drag & drop | @dnd-kit/core + @dnd-kit/sortable |
+| Shader (Aurora) | THREE.js WebGL fragment shader |
+| Shader (Falling) | framer-motion CSS gradient animation |
+| Styling | Tailwind CSS v3 |
+| Bundler | esbuild |
+| Weather API | open-meteo (free, no key) |
+| Geocoding | Nominatim / OpenStreetMap (free, no key) |
+| Storage | chrome.storage.local / browser.storage.local |
 
-## Privacy Policy
+---
 
-This extension is designed with a strict "Local-First" philosophy.
+## Development
 
-* **API Key:** Stored in your browser's local storage.
-* **Chat History:** Stored in your browser's local storage.
-* **Data Transmission:** Chat prompts are sent directly from your browser to Google's servers. No intermediate server or analytics are used.
+```bash
+npm install
+npm run watch     # esbuild + Tailwind in watch mode
+npm run build     # production build → dist/
+```
+
+Output goes to `dist/bundle.js` and `dist/style.css`. The extension loads `index.html` as the new tab page.
+
+---
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+MIT — see `LICENSE`.

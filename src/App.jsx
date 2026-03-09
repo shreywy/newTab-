@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Pencil, Check, Settings } from 'lucide-react';
 import Clock from './components/Clock';
@@ -163,104 +163,67 @@ export default function App() {
 
   const { background, shader, tiles: tileSettings } = appSettings;
 
-  // Smooth cubic easing for entrance animations
-  const ease = [0.22, 1, 0.36, 1];
-
   return (
     <div className="relative w-full h-screen overflow-hidden" style={{ background: background.color }}>
 
-      {/* ── LAYER 1: Static background — fades in first ── */}
+      {/* ── LAYER 1: Static background ── */}
       {background.type === 'solid' && background.showBlobs !== false && (
-        <motion.div
-          className="fixed inset-0 overflow-hidden pointer-events-none z-0"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.6, ease }}
-        >
+        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full filter blur-3xl opacity-15 animate-blob" style={{ background: background.blobColor }} />
           <div className="absolute top-1/3 right-1/4 w-80 h-80 rounded-full filter blur-3xl opacity-10 animate-blob animation-delay-2000" style={{ background: background.blobColor }} />
           <div className="absolute bottom-1/4 left-1/2 w-72 h-72 rounded-full filter blur-3xl opacity-10 animate-blob animation-delay-4000" style={{ background: background.blobColor }} />
-        </motion.div>
+        </div>
       )}
       {background.type === 'gradient' && (
-        <motion.div
+        <div
           className="fixed inset-0 z-0 pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
           style={{ background: background.gradient }}
         />
       )}
       {background.type === 'image' && background.imageUrl && (
-        <motion.div
-          className="fixed inset-0 z-0 pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.6, ease }}
-        >
+        <div className="fixed inset-0 z-0 pointer-events-none">
           <div style={{ position: 'absolute', inset: `-${background.imageBlur * 3}px`, backgroundImage: `url(${background.imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: `blur(${background.imageBlur}px)` }} />
           <div style={{ position: 'absolute', inset: 0, background: `rgba(0,0,0,${background.imageDarkness / 100})` }} />
-        </motion.div>
+        </div>
       )}
 
-      {/* ── LAYER 2: Shader overlay — fades in slowly, slightly after background ── */}
+      {/* ── LAYER 2: Shader overlay ── */}
       {shader.type === 'aurora' && (
-        <motion.div
+        <div
           className="fixed inset-0 z-1 pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: shader.opacity }}
-          transition={{ duration: 2.4, delay: 0.2, ease }}
+          style={{ opacity: shader.opacity }}
         >
           <AuroraShader speed={shader.speed} />
-        </motion.div>
+        </div>
       )}
       {shader.type === 'falling' && (
-        <motion.div
+        <div
           className="fixed inset-0 z-1 pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: shader.opacity }}
-          transition={{ duration: 2.0, delay: 0.2, ease }}
+          style={{ opacity: shader.opacity }}
         >
           <FallingPattern color={shader.color} />
-        </motion.div>
+        </div>
       )}
 
-      {/* ── LAYER 3: Header — slides in from top ── */}
-      <motion.div
-        className="absolute top-0 left-0 right-0 z-20 flex justify-end items-start p-6"
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.55, ease }}
-      >
+      {/* ── LAYER 3: Header ── */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex justify-end items-start p-6">
         <WeatherWidget />
-      </motion.div>
+      </div>
 
-      {/* ── LAYER 4: Main content — staggered entrance ── */}
+      {/* ── LAYER 4: Main content ── */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center gap-0">
-        <motion.div
-          initial={{ opacity: 0, y: 22 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.75, delay: 0.4, ease }}
-        >
+        <div>
           <Clock />
-        </motion.div>
+        </div>
 
-        <motion.div
+        <div
           className="mt-8 w-full px-6"
           style={{ maxWidth: '560px' }}
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.58, ease }}
         >
           <SearchBar />
-        </motion.div>
+        </div>
 
-        <motion.div
-          className="mt-8 w-full px-6"
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, delay: 0.72, ease }}
-        >
+        <div className="mt-8 w-full px-6">
           <TileGrid
             tiles={tiles}
             editMode={editMode}
@@ -271,7 +234,7 @@ export default function App() {
             columns={tileSettings.columns}
             gap={tileSettings.gap}
           />
-        </motion.div>
+        </div>
       </div>
 
       {/* ── FAB: pencil icon only, near corner ── */}

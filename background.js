@@ -1,9 +1,9 @@
-// Open newTab+ on new window (replaces default blank page)
-browser.windows.onCreated.addListener((win) => {
-  if (win.type !== 'normal') return;
-  browser.tabs.query({ windowId: win.id }).then((tabs) => {
-    if (tabs.length === 1 && tabs[0].url === 'about:blank') {
-      browser.tabs.update(tabs[0].id, { url: browser.runtime.getURL('index.html') });
-    }
-  });
+// Redirect about:home (Ctrl+N new window) to newTab+
+// chrome_url_overrides.newtab handles about:newtab (Ctrl+T) already
+const extUrl = browser.runtime.getURL('index.html');
+
+browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.url === 'about:home') {
+    browser.tabs.update(tabId, { url: extUrl });
+  }
 });

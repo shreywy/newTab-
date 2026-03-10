@@ -14,7 +14,7 @@ const BRAND_COLORS = {
   'amazon.com': '#FF9900', 'microsoft.com': '#0078D4', 'linkedin.com': '#0A66C2',
   'tiktok.com': '#FF0050', 'notion.so': '#37352f', 'figma.com': '#F24E1E',
   'vercel.com': '#000000', 'openai.com': '#10a37f', 'anthropic.com': '#C96A45',
-  'claude.ai': '#C96A45', 'chatgpt.com': '#10a37f',
+  'claude.ai': '#C96A45', 'chatgpt.com': '#10a37f', 'chat.openai.com': '#10a37f',
   'apple.com': '#555555', 'steam.com': '#1b2838',
 };
 
@@ -43,6 +43,7 @@ export default function AddTileModal({ tile, onSave, onDelete, onClose }) {
   });
   const [color, setColor] = useState(tile?.color ?? '#6366F1');
   const [shortcut, setShortcut] = useState(tile?.shortcut ?? '');
+  const [iconRadius, setIconRadius] = useState(tile?.iconRadius ?? 22);
   const [imgError, setImgError] = useState(false);
   const [suggestedColor, setSuggestedColor] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -88,7 +89,18 @@ export default function AddTileModal({ tile, onSave, onDelete, onClose }) {
     if (iconMode === 'auto' && iconUrl && !iconUrl.startsWith('data:')) {
       setSaving(true);
       const domain = getDomain(trimUrl);
+
+      // Domains known to have bad favicon service results — override with direct URLs
+      const KNOWN_FAVICONS = {
+        'claude.ai': 'https://claude.ai/apple-touch-icon.png',
+        'chatgpt.com': 'https://chatgpt.com/apple-touch-icon.png',
+        'chat.openai.com': 'https://chat.openai.com/apple-touch-icon.png',
+        'linear.app': 'https://linear.app/static/favicon-192x192.png',
+        'notion.so': 'https://www.notion.so/images/favicon.ico',
+      };
+
       const candidates = [
+        domain && KNOWN_FAVICONS[domain] ? KNOWN_FAVICONS[domain] : null,
         iconUrl,
         domain ? `https://icons.duckduckgo.com/ip3/${domain}.ico` : null,
         domain ? `https://favicone.com/${domain}?s=64` : null,
@@ -119,6 +131,7 @@ export default function AddTileModal({ tile, onSave, onDelete, onClose }) {
       url: trimUrl,
       icon: iconMode === 'emoji' ? icon.trim() : '',
       iconUrl: resolvedIconUrl,
+      iconRadius: iconMode === 'auto' ? iconRadius : 0,
       color,
       shortcut: shortcut.trim().charAt(0).toLowerCase() || '',
     });
@@ -201,16 +214,27 @@ export default function AddTileModal({ tile, onSave, onDelete, onClose }) {
 
               {/* Auto mode: editable URL field (auto-filled from URL, or paste custom) */}
               {iconMode === 'auto' && (
-                <div>
+                <div className="space-y-2">
                   <input
                     type="text"
                     value={iconUrl}
                     onChange={e => { setIconUrl(e.target.value); setImgError(false); }}
-                    placeholder="Icon URL (auto-filled) or paste your own"
+                    placeholder="Paste any image URL (PNG, JPG, SVG…)"
                     className={inputCls}
                     style={{ fontSize: '11px', padding: '6px 12px' }}
                   />
-                  <p className="text-[10px] text-white/25 mt-1">Auto-filled from URL · Paste any image link to override</p>
+                  <p className="text-[10px] text-white/25">Auto-filled from URL · Paste any image link to override</p>
+                  {iconUrl && !imgError && (
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-[10px] text-white/35 flex-shrink-0">Corners</span>
+                      <input
+                        type="range" min={0} max={50} value={iconRadius}
+                        onChange={e => setIconRadius(Number(e.target.value))}
+                        className="flex-1 h-1 accent-white/60 cursor-pointer"
+                      />
+                      <span className="text-[10px] text-white/35 w-6 text-right flex-shrink-0">{iconRadius}%</span>
+                    </div>
+                  )}
                 </div>
               )}
               {iconMode === 'emoji' && (
@@ -225,7 +249,7 @@ export default function AddTileModal({ tile, onSave, onDelete, onClose }) {
             <div className="flex-shrink-0 mt-5">
               <div className="rounded-xl w-14 h-14 flex items-center justify-center overflow-hidden" style={{ background: `${color}22`, border: `1px solid ${color}35` }}>
                 {showImg ? (
-                  <img src={iconUrl} alt="" className="w-8 h-8 object-contain" onError={() => setImgError(true)} />
+                  <img src={iconUrl} alt="" className="w-8 h-8 object-contain" style={{ borderRadius: `${iconRadius}%` }} onError={() => setImgError(true)} />
                 ) : showEmoji ? (
                   <span className="text-2xl leading-none">{icon}</span>
                 ) : (

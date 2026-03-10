@@ -4,7 +4,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Pencil } from 'lucide-react';
 
-export default function TileCard({ tile, editMode, onEdit, tileSize = 100, heldShortcut = null, showShortcuts = false, shortcutStyle = 'badge', shortcutColor = '' }) {
+export default function TileCard({ tile, editMode, onEdit, tileSize = 100, heldShortcut = null, showShortcuts = false, shortcutStyle = 'badge', shortcutColor = '', hoverShadow = false }) {
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -51,7 +51,7 @@ export default function TileCard({ tile, editMode, onEdit, tileSize = 100, heldS
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: isHeld ? 1.14 : 1, y: isHeld ? -6 : 0 }}
         exit={{ opacity: 0, scale: 0.85 }}
-        whileHover={!editMode && !isHeld ? { scale: 1.08, y: -5 } : {}}
+        whileHover={!editMode && !isHeld ? { scale: 1.08, y: -5, filter: hoverShadow ? 'drop-shadow(0 12px 24px rgba(0,0,0,0.55))' : 'none' } : {}}
         whileTap={!editMode ? { scale: 0.97 } : {}}
         transition={isHeld
           ? { scale: { duration: 0.18, ease: 'easeOut' }, y: { duration: 0.18, ease: 'easeOut' } }
@@ -101,7 +101,7 @@ export default function TileCard({ tile, editMode, onEdit, tileSize = 100, heldS
             <img
               src={tile.iconUrl}
               alt=""
-              style={{ width: imgSize, height: imgSize, objectFit: 'contain', borderRadius: '22%' }}
+              style={{ width: imgSize, height: imgSize, objectFit: 'contain', borderRadius: `${tile.iconRadius ?? 22}%` }}
               onError={() => setImgError(true)}
             />
           ) : tile.icon ? (
@@ -123,8 +123,8 @@ export default function TileCard({ tile, editMode, onEdit, tileSize = 100, heldS
           {tile.name}
         </span>
 
-        {/* Shortcut badge — shown when showShortcuts is on, or while key is held */}
-        {tile.shortcut && !editMode && (showShortcuts || isHeld) && (
+        {/* Shortcut badge — shown when showShortcuts is on, while key is held, or in edit mode */}
+        {tile.shortcut && (showShortcuts || isHeld || editMode) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: isHeld ? 1 : 0.6 }}

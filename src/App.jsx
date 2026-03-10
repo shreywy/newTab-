@@ -273,7 +273,7 @@ export default function App() {
   const { background, shader, tiles: tileSettings, search: searchSettings = {}, clock: clockSettings = {} } = appSettings;
 
   // Don't render until storage is loaded — prevents flash of default settings
-  if (!loaded) return <div className="w-full h-screen" style={{ background: '#020617' }} />;
+  if (!loaded) return null;
 
   return (
     <div className="relative w-full h-screen overflow-hidden" style={{ background: background.color }}>

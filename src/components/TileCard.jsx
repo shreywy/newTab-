@@ -4,7 +4,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Pencil } from 'lucide-react';
 
-export default function TileCard({ tile, editMode, onEdit, tileSize = 100 }) {
+export default function TileCard({ tile, editMode, onEdit, tileSize = 100, heldShortcut = null, showShortcuts = false }) {
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -24,9 +24,10 @@ export default function TileCard({ tile, editMode, onEdit, tileSize = 100 }) {
     flexShrink: 0,
   };
 
-  const iconContainerSize = Math.round(tileSize * 0.46);
-  const fontSize = Math.round(tileSize * 0.22);
-  const imgSize = Math.round(iconContainerSize * 0.62);
+  const isHeld = tile.shortcut && heldShortcut === tile.shortcut.toLowerCase();
+  const iconContainerSize = Math.round(tileSize * 0.52);
+  const fontSize = Math.round(tileSize * 0.24);
+  const imgSize = Math.round(iconContainerSize * 0.66);
 
   const handleClick = () => {
     if (isDragging) return;
@@ -48,11 +49,14 @@ export default function TileCard({ tile, editMode, onEdit, tileSize = 100 }) {
       <motion.div
         onClick={handleClick}
         initial={{ opacity: 0, scale: 0.85 }}
-        animate={{ opacity: 1, scale: 1 }}
+        animate={{ opacity: 1, scale: isHeld ? 1.14 : 1, y: isHeld ? -6 : 0 }}
         exit={{ opacity: 0, scale: 0.85 }}
-        whileHover={!editMode ? { scale: 1.08, y: -5 } : {}}
+        whileHover={!editMode && !isHeld ? { scale: 1.08, y: -5 } : {}}
         whileTap={!editMode ? { scale: 0.97 } : {}}
-        transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+        transition={isHeld
+          ? { scale: { duration: 0.18, ease: 'easeOut' }, y: { duration: 0.18, ease: 'easeOut' } }
+          : { type: 'spring', stiffness: 380, damping: 26 }
+        }
         className={`
           w-full h-full glass rounded-2xl flex flex-col items-center justify-center gap-2
           select-none relative
@@ -97,7 +101,7 @@ export default function TileCard({ tile, editMode, onEdit, tileSize = 100 }) {
             <img
               src={tile.iconUrl}
               alt=""
-              style={{ width: imgSize, height: imgSize, objectFit: 'contain' }}
+              style={{ width: imgSize, height: imgSize, objectFit: 'contain', borderRadius: '22%' }}
               onError={() => setImgError(true)}
             />
           ) : tile.icon ? (
@@ -119,14 +123,16 @@ export default function TileCard({ tile, editMode, onEdit, tileSize = 100 }) {
           {tile.name}
         </span>
 
-        {/* Shortcut badge */}
-        {tile.shortcut && !editMode && (
-          <div
-            className="absolute bottom-1.5 right-1.5 flex items-center justify-center rounded font-mono text-white/40"
-            style={{ fontSize: '9px', lineHeight: 1, padding: '1px 4px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
+        {/* Shortcut badge — shown when showShortcuts is on, or while key is held */}
+        {tile.shortcut && !editMode && (showShortcuts || isHeld) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isHeld ? 1 : 0.55 }}
+            className="absolute bottom-1.5 right-1.5 flex items-center justify-center rounded font-mono"
+            style={{ fontSize: '9px', lineHeight: 1, padding: '1px 4px', background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.7)' }}
           >
             {tile.shortcut.toUpperCase()}
-          </div>
+          </motion.div>
         )}
       </motion.div>
     </div>

@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Download, Upload, ChevronDown } from 'lucide-react';
 
@@ -227,7 +228,7 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
   const handleExport = () => {
     const data = {
       version: 1,
-      tiles: tiles.map(({ name, url, icon, iconUrl, color }) => ({ name, url, icon, iconUrl, color })),
+      tiles: tiles.map(({ name, url, icon, iconUrl, color, shortcut }) => ({ name, url, icon, iconUrl, color, shortcut })),
       settings: {
         background: settings.background,
         shader: settings.shader,
@@ -428,19 +429,23 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
           <Slider label="Icon Size" value={tileSettings.size} min={60} max={160} unit="px" onChange={v => set('tiles.size', v)} />
           <Slider label="Columns" value={tileSettings.columns} min={2} max={12} onChange={v => set('tiles.columns', v)} />
           <Slider label="Gap" value={tileSettings.gap} min={4} max={40} unit="px" onChange={v => set('tiles.gap', v)} />
+          <Toggle label="Show Shortcut Badges" value={tileSettings.showShortcuts ?? false} onChange={v => set('tiles.showShortcuts', v)} />
         </section>
 
       </div>
 
-      {/* Import selection modal */}
-      <AnimatePresence>
+      {/* Import selection modal — rendered in a portal to escape the panel's CSS transform */}
+      {createPortal(
+        <AnimatePresence>
         {importModal && (
           <>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/50"
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[100]"
+              style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
               onClick={() => setImportModal(null)}
             />
             <motion.div
@@ -448,11 +453,12 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-72 rounded-2xl p-5 space-y-4"
+              className="fixed z-[101] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-80 rounded-2xl p-6 space-y-4"
               style={{
-                background: 'rgba(12, 14, 28, 0.95)',
+                background: 'rgba(12, 14, 28, 0.97)',
                 border: '1px solid rgba(255,255,255,0.12)',
                 backdropFilter: 'blur(24px)',
+                boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
               }}
             >
               <div>
@@ -506,7 +512,9 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
             </motion.div>
           </>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </motion.div>
   );
 }

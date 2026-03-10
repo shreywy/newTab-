@@ -47,6 +47,7 @@ const DEFAULT_SETTINGS = {
     size: 100,
     columns: 7,
     gap: 16,
+    showShortcuts: false,
   },
 };
 
@@ -168,21 +169,32 @@ export default function App() {
     });
   }, []);
 
-  // Tile keyboard shortcuts
+  // Tile keyboard shortcuts — hold to preview, release to navigate
+  const [heldShortcut, setHeldShortcut] = useState(null);
+
   useEffect(() => {
-    const handler = (e) => {
+    const onDown = (e) => {
       const tag = document.activeElement?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
       const key = e.key.toLowerCase();
       const match = tiles.find(t => t.shortcut && t.shortcut.toLowerCase() === key);
-      if (match) {
-        e.preventDefault();
-        window.location.href = match.url;
-      }
+      if (match) { e.preventDefault(); setHeldShortcut(key); }
     };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    const onUp = (e) => {
+      const key = e.key.toLowerCase();
+      setHeldShortcut(prev => {
+        if (prev === key) {
+          const match = tiles.find(t => t.shortcut && t.shortcut.toLowerCase() === key);
+          if (match) window.location.href = match.url;
+          return null;
+        }
+        return prev;
+      });
+    };
+    window.addEventListener('keydown', onDown);
+    window.addEventListener('keyup', onUp);
+    return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp); };
   }, [tiles]);
 
   const { background, shader, tiles: tileSettings } = appSettings;
@@ -253,40 +265,77 @@ export default function App() {
             tileSize={tileSettings.size}
             columns={tileSettings.columns}
             gap={tileSettings.gap}
+            heldShortcut={heldShortcut}
+            showShortcuts={tileSettings.showShortcuts}
           />
         </div>
       </div>
 
-      {/* ── FAB: pencil icon only, near corner ── */}
+      {/* ── FAB ── */}
       <AnimatePresence>
         {(showFab || editMode) && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.15 }}
-            className="fixed bottom-6 right-6 z-30 flex items-center gap-2"
+            initial={{ opacity: 0, scale: 0.85, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.85, y: 8 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="fixed bottom-6 right-6 z-30"
           >
-            <button
-              onClick={toggleEditMode}
-              className={`glass glass-hover w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 ${editMode ? 'text-[#2596be]' : 'text-white/60 hover:text-white'}`}
-              title={editMode ? 'Done editing' : 'Edit tiles'}
+            <motion.div
+              layout
+              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              className="glass flex items-center overflow-hidden"
+              style={{
+                borderRadius: '999px',
+                border: '1px solid rgba(255,255,255,0.12)',
+              }}
             >
-              {editMode ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
-            </button>
-            {editMode && (
-              <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                onClick={() => setShowSettings(v => !v)}
-                className={`glass glass-hover w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 ${showSettings ? 'text-[#2596be]' : 'text-white/60 hover:text-white'}`}
-                title="Settings"
+              {/* Settings button — slides in from right when edit mode activates */}
+              <AnimatePresence initial={false}>
+                {editMode && (
+                  <motion.button
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: 36, opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    onClick={() => setShowSettings(v => !v)}
+                    className={`h-9 flex items-center justify-center cursor-pointer transition-colors duration-150 flex-shrink-0 ${showSettings ? 'text-[#2596be]' : 'text-white/55 hover:text-white'}`}
+                    title="Settings"
+                    style={{ overflow: 'hidden' }}
+                  >
+                    <Settings className="w-4 h-4 flex-shrink-0" />
+                  </motion.button>
+                )}
+              </AnimatePresence>
+
+              {/* Divider */}
+              <AnimatePresence initial={false}>
+                {editMode && (
+                  <motion.div
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: 1, opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    className="h-5 flex-shrink-0"
+                    style={{ background: 'rgba(255,255,255,0.12)' }}
+                  />
+                )}
+              </AnimatePresence>
+
+              {/* Pencil / Check button — always visible */}
+              <button
+                onClick={toggleEditMode}
+                className={`w-9 h-9 flex items-center justify-center cursor-pointer transition-colors duration-150 flex-shrink-0 ${editMode ? 'text-[#2596be]' : 'text-white/55 hover:text-white'}`}
+                title={editMode ? 'Done editing' : 'Edit tiles'}
               >
-                <Settings className="w-4 h-4" />
-              </motion.button>
-            )}
+                <AnimatePresence mode="wait" initial={false}>
+                  {editMode
+                    ? <motion.span key="check" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} transition={{ duration: 0.12 }}><Check className="w-4 h-4" /></motion.span>
+                    : <motion.span key="pencil" initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.5, opacity: 0 }} transition={{ duration: 0.12 }}><Pencil className="w-4 h-4" /></motion.span>
+                  }
+                </AnimatePresence>
+              </button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

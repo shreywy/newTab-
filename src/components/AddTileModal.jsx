@@ -3,7 +3,11 @@ import { motion } from 'framer-motion';
 import { X, Trash2 } from 'lucide-react';
 
 const BRAND_COLORS = {
-  'google.com': '#4285F4', 'youtube.com': '#FF0000', 'github.com': '#6e40c9',
+  'google.com': '#4285F4',
+  'docs.google.com': '#4285F4', 'sheets.google.com': '#0F9D58',
+  'slides.google.com': '#F4B400', 'drive.google.com': '#4285F4',
+  'mail.google.com': '#EA4335', 'calendar.google.com': '#4285F4',
+  'youtube.com': '#FF0000', 'github.com': '#6e40c9',
   'twitter.com': '#1DA1F2', 'x.com': '#1a1a1a', 'reddit.com': '#FF4500',
   'twitch.tv': '#9146FF', 'netflix.com': '#E50914', 'spotify.com': '#1DB954',
   'discord.com': '#5865F2', 'instagram.com': '#E1306C', 'facebook.com': '#1877F2',
@@ -13,7 +17,11 @@ const BRAND_COLORS = {
   'apple.com': '#555555', 'steam.com': '#1b2838',
 };
 
-const COLOR_PRESETS = ['#6366F1','#8B5CF6','#F43F5E','#F59E0B','#10B981','#0EA5E9','#EC4899','#F97316'];
+// RGB order: red → orange → yellow → green → cyan → blue → indigo → violet → pink
+const COLOR_PRESETS = [
+  '#EF4444', '#F97316', '#EAB308', '#22C55E',
+  '#06B6D4', '#3B82F6', '#6366F1', '#8B5CF6', '#EC4899',
+];
 
 function getDomain(url) {
   try { return new URL(url.startsWith('http') ? url : 'https://' + url).hostname.replace(/^www\./, ''); }
@@ -204,9 +212,12 @@ export default function AddTileModal({ tile, onSave, onDelete, onClose }) {
                 />
               ))}
               {/* Custom picker */}
-              <div className="relative w-7 h-7 flex-shrink-0">
+              <div className="relative flex-shrink-0" title="Custom color">
                 <input type="color" value={color} onChange={e => setColor(e.target.value)} className="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
-                <div className={`w-7 h-7 rounded-full border border-white/30 transition-all ${!COLOR_PRESETS.includes(color) ? 'ring-2 ring-white/50 ring-offset-1 scale-110' : 'hover:scale-110'}`} style={{ background: color }} />
+                <div className={`w-7 h-7 rounded-full border border-white/30 flex items-center justify-center transition-all ${!COLOR_PRESETS.includes(color) ? 'ring-2 ring-white/50 ring-offset-1 scale-110' : 'hover:scale-110'}`}
+                  style={{ background: COLOR_PRESETS.includes(color) ? 'rgba(255,255,255,0.08)' : color }}>
+                  {COLOR_PRESETS.includes(color) && <span className="text-white/50 text-xs leading-none select-none">+</span>}
+                </div>
               </div>
             </div>
           </div>

@@ -425,7 +425,22 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
 
         {/* ── TILES ── */}
         <section className="space-y-4">
-          <h3 className={c.section}>Tiles</h3>
+          <div className="flex items-center justify-between">
+            <h3 className={c.section}>Tiles</h3>
+            <button
+              onClick={() => {
+                set('tiles.size', 100);
+                set('tiles.columns', 7);
+                set('tiles.gap', 16);
+                set('tiles.showShortcuts', false);
+                set('tiles.shortcutStyle', 'badge');
+                set('tiles.shortcutColor', '');
+              }}
+              className="text-[10px] text-white/30 hover:text-white/55 cursor-pointer transition-colors"
+            >
+              Reset
+            </button>
+          </div>
           <Slider label="Icon Size" value={tileSettings.size} min={60} max={160} unit="px" onChange={v => set('tiles.size', v)} />
           <Slider label="Columns" value={tileSettings.columns} min={2} max={12} onChange={v => set('tiles.columns', v)} />
           <Slider label="Gap" value={tileSettings.gap} min={4} max={40} unit="px" onChange={v => set('tiles.gap', v)} />

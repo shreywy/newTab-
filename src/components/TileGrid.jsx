@@ -64,7 +64,8 @@ export default function TileGrid({ tiles, editMode, onReorder, onAdd, onEdit, ti
     if (oldIdx !== -1 && newIdx !== -1) onReorder(arrayMove(tiles, oldIdx, newIdx));
   };
 
-  const totalItems = tiles.length + (editMode ? 1 : 0);
+  // Always count the + slot so grid dimensions never change when toggling edit mode
+  const totalItems = tiles.length + 1;
   const effectiveCols = Math.max(1, Math.min(totalItems, columns));
   // Max viewport height for tile area
   const maxViewH = `calc(100vh - 360px)`;
@@ -100,9 +101,7 @@ export default function TileGrid({ tiles, editMode, onReorder, onAdd, onEdit, ti
                 width: 'fit-content',
               }}
             >
-              <motion.div
-                layout
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              <div
                 style={{
                   display: 'grid',
                   gridTemplateColumns: `repeat(${effectiveCols}, ${tileSize}px)`,
@@ -126,28 +125,27 @@ export default function TileGrid({ tiles, editMode, onReorder, onAdd, onEdit, ti
                   ))}
                 </AnimatePresence>
 
-                {/* Add button — only in edit mode */}
-                {editMode && (
-                  <motion.button
-                    key="add-btn"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={onAdd}
-                    className="glass rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer text-white/35 hover:text-white/60 transition-colors duration-200"
-                    style={{
-                      border: '1.5px dashed rgba(255,255,255,0.15)',
-                      width: `${tileSize}px`,
-                      height: `${tileSize}px`,
-                    }}
-                  >
-                    <Plus className="w-5 h-5" />
-                    <span className="text-xs font-medium">Add</span>
-                  </motion.button>
-                )}
-              </motion.div>
+                {/* Add button — always in DOM to prevent layout shift; hidden when not editing */}
+                <motion.button
+                  animate={{ opacity: editMode ? 1 : 0, scale: editMode ? 1 : 0.85 }}
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                  whileHover={editMode ? { scale: 1.05 } : {}}
+                  whileTap={editMode ? { scale: 0.96 } : {}}
+                  onClick={editMode ? onAdd : undefined}
+                  tabIndex={editMode ? 0 : -1}
+                  className="glass rounded-2xl flex flex-col items-center justify-center gap-2 text-white/35 hover:text-white/60 transition-colors duration-200"
+                  style={{
+                    border: '1.5px dashed rgba(255,255,255,0.15)',
+                    width: `${tileSize}px`,
+                    height: `${tileSize}px`,
+                    cursor: editMode ? 'pointer' : 'default',
+                    pointerEvents: editMode ? 'auto' : 'none',
+                  }}
+                >
+                  <Plus className="w-5 h-5" />
+                  <span className="text-xs font-medium">Add</span>
+                </motion.button>
+              </div>
             </div>
           </div>
         </div>

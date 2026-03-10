@@ -23,6 +23,7 @@ export default function SearchBar() {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search the web..."
           className="flex-1 bg-transparent text-white placeholder-white/30 outline-none text-sm font-light"
+          style={{ fontFamily: 'var(--font-search, inherit)' }}
           autoComplete="off"
           spellCheck="false"
         />

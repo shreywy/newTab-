@@ -38,16 +38,24 @@ export default function Clock() {
 
   return (
     <div className="flex flex-col items-center select-none">
-      <p className="text-xs text-white/40 font-light tracking-widest uppercase mb-3">
+      <p className="text-xs text-white/40 font-light tracking-widest uppercase mb-3"
+        style={{ fontFamily: 'var(--font-greeting, inherit)' }}>
         {greeting}
       </p>
       <div className="flex items-end gap-1">
-        <span className="text-7xl font-thin tracking-tight text-white leading-none">
+        <span className="text-7xl font-thin tracking-tight text-white leading-none"
+          style={{ fontFamily: 'var(--font-time, inherit)' }}>
           {hours}:{minutes}
         </span>
-        <span className="text-2xl font-light text-white/50 mb-1 ml-1">{ampm}</span>
+        <span className="text-2xl font-light text-white/50 mb-1 ml-1"
+          style={{ fontFamily: 'var(--font-time, inherit)' }}>
+          {ampm}
+        </span>
       </div>
-      <p className="text-sm text-white/50 mt-2 tracking-wide">{dateStr}</p>
+      <p className="text-sm text-white/50 mt-2 tracking-wide"
+        style={{ fontFamily: 'var(--font-date, inherit)' }}>
+        {dateStr}
+      </p>
     </div>
   );
 }

@@ -50,6 +50,16 @@ const DEFAULT_SETTINGS = {
     showShortcuts: false,
     shortcutStyle: 'badge',   // 'badge' | 'dot'
     shortcutColor: '',        // '' = default white/glass, any hex = tinted
+    hoverShadow: false,
+  },
+  fonts: {
+    global: '',       // if set, used as fallback for all below
+    time: '',
+    date: '',
+    greeting: '',
+    search: '',
+    tiles: '',
+    shortcuts: '',
   },
 };
 
@@ -111,6 +121,42 @@ export default function App() {
   useEffect(() => { if (loaded) saveToStorage(storage, TILES_KEY, tiles); }, [tiles, loaded]);
   // Save settings on change
   useEffect(() => { if (loaded) saveToStorage(storage, SETTINGS_KEY, appSettings); }, [appSettings, loaded]);
+
+  // Load Google Fonts and set CSS custom properties for font settings
+  useEffect(() => {
+    const f = appSettings.fonts ?? {};
+    const resolve = (specific) => specific || f.global || '';
+    const assignments = {
+      '--font-time':      resolve(f.time),
+      '--font-date':      resolve(f.date),
+      '--font-greeting':  resolve(f.greeting),
+      '--font-search':    resolve(f.search),
+      '--font-tiles':     resolve(f.tiles),
+      '--font-shortcuts': resolve(f.shortcuts),
+    };
+    const root = document.documentElement;
+    for (const [k, v] of Object.entries(assignments)) {
+      if (v) root.style.setProperty(k, `'${v}', system-ui, sans-serif`);
+      else root.style.removeProperty(k);
+    }
+    // Dynamically inject Google Fonts link for any selected fonts
+    const MONO = new Set(['JetBrains Mono', 'Fira Code', 'Space Mono', 'IBM Plex Mono', 'Geist Mono']);
+    const used = [...new Set(Object.values(f).filter(Boolean))];
+    if (used.length === 0) { document.getElementById('ntplus-gfonts')?.remove(); return; }
+    const families = used.map(font => {
+      const wgts = MONO.has(font) ? '400;500' : '300;400;500;600';
+      return `family=${font.replace(/ /g, '+')}:wght@${wgts}`;
+    }).join('&');
+    const href = `https://fonts.googleapis.com/css2?${families}&display=swap`;
+    let link = document.getElementById('ntplus-gfonts');
+    if (!link) {
+      link = document.createElement('link');
+      link.id = 'ntplus-gfonts';
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+    link.href = href;
+  }, [appSettings.fonts]);
 
   // Mouse corner detection for FAB
   useEffect(() => {
@@ -271,6 +317,7 @@ export default function App() {
             showShortcuts={tileSettings.showShortcuts}
             shortcutStyle={tileSettings.shortcutStyle}
             shortcutColor={tileSettings.shortcutColor}
+            hoverShadow={tileSettings.hoverShadow}
           />
         </div>
       </div>

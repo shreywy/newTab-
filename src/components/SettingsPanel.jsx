@@ -53,6 +53,9 @@ const GRADIENT_PRESETS = [
 ];
 // ──────────────────────────────────────────────────────────────────────────
 
+const SANS_FONTS = ['Inter', 'DM Sans', 'Geist', 'Outfit', 'Onest', 'Figtree', 'Plus Jakarta Sans', 'Space Grotesk', 'Nunito', 'Poppins', 'Raleway', 'Sora'];
+const MONO_FONTS = ['JetBrains Mono', 'Fira Code', 'Space Mono', 'IBM Plex Mono'];
+
 const c = {
   label: 'text-xs text-white/50 font-medium',
   row: 'flex items-center justify-between gap-3',
@@ -116,6 +119,38 @@ function Toggle({ label, value, onChange }) {
       >
         <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-200 ${value ? 'left-5' : 'left-0.5'}`} />
       </button>
+    </div>
+  );
+}
+
+function FontSelect({ label, value, onChange }) {
+  return (
+    <div className={c.row}>
+      <span className={c.label}>{label}</span>
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="text-xs rounded-lg px-2 py-1.5 outline-none cursor-pointer"
+        style={{
+          background: 'rgba(255,255,255,0.07)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          color: 'rgba(255,255,255,0.80)',
+          fontFamily: value ? `'${value}', system-ui` : undefined,
+          maxWidth: '152px',
+        }}
+      >
+        <option value="" style={{ background: '#0c0e1a', fontFamily: 'system-ui' }}>Default</option>
+        <optgroup label="Sans-serif" style={{ background: '#0c0e1a' }}>
+          {SANS_FONTS.map(f => (
+            <option key={f} value={f} style={{ background: '#0c0e1a', fontFamily: `'${f}', system-ui` }}>{f}</option>
+          ))}
+        </optgroup>
+        <optgroup label="Monospace" style={{ background: '#0c0e1a' }}>
+          {MONO_FONTS.map(f => (
+            <option key={f} value={f} style={{ background: '#0c0e1a', fontFamily: `'${f}', monospace` }}>{f}</option>
+          ))}
+        </optgroup>
+      </select>
     </div>
   );
 }
@@ -209,7 +244,7 @@ function PresetDropdown({ onSelect }) {
 }
 
 export default function SettingsPanel({ settings, onClose, onUpdateSettings, tiles, onImportTiles, onImport, onDone }) {
-  const { background, shader, tiles: tileSettings } = settings;
+  const { background, shader, tiles: tileSettings, fonts: fontSettings = {} } = settings;
   const set = (path, val) => onUpdateSettings(path, val);
   const importRef = useRef(null);
   const [importModal, setImportModal] = useState(null); // { parsed, hasLinks, hasSettings }
@@ -228,11 +263,12 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
   const handleExport = () => {
     const data = {
       version: 1,
-      tiles: tiles.map(({ name, url, icon, iconUrl, color, shortcut }) => ({ name, url, icon, iconUrl, color, shortcut })),
+      tiles: tiles.map(({ name, url, icon, iconUrl, iconRadius, color, shortcut }) => ({ name, url, icon, iconUrl, iconRadius, color, shortcut })),
       settings: {
         background: settings.background,
         shader: settings.shader,
         tiles: settings.tiles,
+        fonts: settings.fonts,
       },
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -423,19 +459,28 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
 
         <SectionDivider />
 
+        {/* ── FONTS ── */}
+        <section className="space-y-3.5">
+          <h3 className={c.section}>Fonts</h3>
+          <FontSelect label="Global" value={fontSettings.global ?? ''} onChange={v => set('fonts.global', v)} />
+          <div className="h-px -mx-1" style={{ background: 'rgba(255,255,255,0.05)' }} />
+          <FontSelect label="Clock" value={fontSettings.time ?? ''} onChange={v => set('fonts.time', v)} />
+          <FontSelect label="Date" value={fontSettings.date ?? ''} onChange={v => set('fonts.date', v)} />
+          <FontSelect label="Greeting" value={fontSettings.greeting ?? ''} onChange={v => set('fonts.greeting', v)} />
+          <FontSelect label="Search" value={fontSettings.search ?? ''} onChange={v => set('fonts.search', v)} />
+          <FontSelect label="Tile Names" value={fontSettings.tiles ?? ''} onChange={v => set('fonts.tiles', v)} />
+          <FontSelect label="Shortcuts" value={fontSettings.shortcuts ?? ''} onChange={v => set('fonts.shortcuts', v)} />
+          <p className="text-[10px] text-white/25">Individual overrides Global. Default = system font.</p>
+        </section>
+
+        <SectionDivider />
+
         {/* ── TILES ── */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className={c.section}>Tiles</h3>
             <button
-              onClick={() => {
-                set('tiles.size', 100);
-                set('tiles.columns', 7);
-                set('tiles.gap', 16);
-                set('tiles.showShortcuts', false);
-                set('tiles.shortcutStyle', 'badge');
-                set('tiles.shortcutColor', '');
-              }}
+              onClick={() => set('tiles', { size: 100, columns: 7, gap: 16, showShortcuts: false, shortcutStyle: 'badge', shortcutColor: '', hoverShadow: false })}
               className="text-[10px] text-white/30 hover:text-white/55 cursor-pointer transition-colors"
             >
               Reset
@@ -444,6 +489,7 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
           <Slider label="Icon Size" value={tileSettings.size} min={60} max={160} unit="px" onChange={v => set('tiles.size', v)} />
           <Slider label="Columns" value={tileSettings.columns} min={2} max={12} onChange={v => set('tiles.columns', v)} />
           <Slider label="Gap" value={tileSettings.gap} min={4} max={40} unit="px" onChange={v => set('tiles.gap', v)} />
+          <Toggle label="Hover Shadow" value={tileSettings.hoverShadow ?? false} onChange={v => set('tiles.hoverShadow', v)} />
           <Toggle label="Show Shortcut Badges" value={tileSettings.showShortcuts ?? false} onChange={v => set('tiles.showShortcuts', v)} />
           {(tileSettings.showShortcuts) && (<>
             <div className={c.row}>

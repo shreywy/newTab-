@@ -49,9 +49,9 @@ export default function TileCard({ tile, editMode, onEdit, tileSize = 100, heldS
       <motion.div
         onClick={handleClick}
         initial={{ opacity: 0, scale: 0.85 }}
-        animate={{ opacity: 1, scale: isHeld ? 1.14 : 1, y: isHeld ? -6 : 0 }}
+        animate={{ opacity: 1, scale: isHeld ? 1.14 : 1, y: isHeld ? -6 : 0, filter: 'none' }}
         exit={{ opacity: 0, scale: 0.85 }}
-        whileHover={!editMode && !isHeld ? { scale: 1.08, y: -5, filter: hoverShadow ? 'drop-shadow(0 12px 24px rgba(0,0,0,0.55))' : 'none' } : {}}
+        whileHover={!editMode && !isHeld ? { scale: 1.08, y: -5, ...(hoverShadow ? { filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.6))' } : {}) } : {}}
         whileTap={!editMode ? { scale: 0.97 } : {}}
         transition={isHeld
           ? { scale: { duration: 0.18, ease: 'easeOut' }, y: { duration: 0.18, ease: 'easeOut' } }
@@ -118,13 +118,13 @@ export default function TileCard({ tile, editMode, onEdit, tileSize = 100, heldS
         {/* Name */}
         <span
           className="text-white/65 font-medium text-center leading-tight truncate w-full px-2"
-          style={{ fontSize: `${Math.max(9, Math.round(tileSize * 0.11))}px` }}
+          style={{ fontSize: `${Math.max(9, Math.round(tileSize * 0.11))}px`, fontFamily: 'var(--font-tiles, inherit)' }}
         >
           {tile.name}
         </span>
 
-        {/* Shortcut badge — shown when showShortcuts is on, while key is held, or in edit mode */}
-        {tile.shortcut && (showShortcuts || isHeld || editMode) && (
+        {/* Shortcut badge — shown when showShortcuts is on or key is held */}
+        {tile.shortcut && (showShortcuts || isHeld) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: isHeld ? 1 : 0.6 }}
@@ -136,7 +136,7 @@ export default function TileCard({ tile, editMode, onEdit, tileSize = 100, heldS
                 }
               : {
                   fontSize: '9px', lineHeight: 1, padding: '1px 4px',
-                  borderRadius: 4, fontFamily: 'monospace',
+                  borderRadius: 4, fontFamily: 'var(--font-shortcuts, monospace)',
                   background: shortcutColor ? `${shortcutColor}28` : 'rgba(255,255,255,0.10)',
                   border: `1px solid ${shortcutColor || 'rgba(255,255,255,0.18)'}`,
                   color: shortcutColor || 'rgba(255,255,255,0.75)',

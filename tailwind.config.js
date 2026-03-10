@@ -4,7 +4,7 @@ module.exports = {
     extend: {
       animation: {
         'blob': 'blob 7s infinite',
-        'wiggle': 'wiggle 0.25s ease-in-out infinite',
+        'wiggle': 'wiggle 0.35s ease-in-out infinite',
         'fade-in': 'fadeIn 0.2s ease-out',
         'slide-up': 'slideUp 0.25s ease-out',
       },
@@ -15,8 +15,10 @@ module.exports = {
           '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
         },
         wiggle: {
-          '0%, 100%': { transform: 'rotate(-0.8deg)' },
-          '50%': { transform: 'rotate(0.8deg)' },
+          '0%, 100%': { transform: 'rotate(-1.2deg) translateY(0px)' },
+          '25%':       { transform: 'rotate(1.2deg) translateY(-1px)' },
+          '50%':       { transform: 'rotate(-0.9deg) translateY(0.5px)' },
+          '75%':       { transform: 'rotate(0.9deg) translateY(-0.5px)' },
         },
         fadeIn: {
           from: { opacity: '0' },

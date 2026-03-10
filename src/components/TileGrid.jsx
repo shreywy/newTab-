@@ -5,9 +5,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import TileCard from './TileCard';
 
-const OVERFLOW_PADDING = 28; // px of extra space for hover scale animations
+const OVERFLOW_PADDING = 40; // px of extra space for hover scale animations + drop-shadow
 
-export default function TileGrid({ tiles, editMode, onReorder, onAdd, onEdit, tileSize = 100, columns = 7, gap = 16, heldShortcut = null, showShortcuts = false, shortcutStyle = 'badge', shortcutColor = '' }) {
+export default function TileGrid({ tiles, editMode, onReorder, onAdd, onEdit, tileSize = 100, columns = 7, gap = 16, heldShortcut = null, showShortcuts = false, shortcutStyle = 'badge', shortcutColor = '', hoverShadow = false }) {
   const outerRef = useRef(null);
   const innerRef = useRef(null);
   const [scrollY, setScrollY] = useState(0);
@@ -79,7 +79,8 @@ export default function TileGrid({ tiles, editMode, onReorder, onAdd, onEdit, ti
             ref={outerRef}
             style={{
               maxHeight: `calc(${maxViewH} + ${OVERFLOW_PADDING * 2}px)`,
-              overflow: 'hidden',
+              overflowX: 'visible',
+              overflowY: 'hidden',
               padding: `${OVERFLOW_PADDING}px`,
               // Negative margin compensates for padding so layout isn't shifted
               margin: `-${OVERFLOW_PADDING}px`,
@@ -121,6 +122,7 @@ export default function TileGrid({ tiles, editMode, onReorder, onAdd, onEdit, ti
                       showShortcuts={showShortcuts}
                       shortcutStyle={shortcutStyle}
                       shortcutColor={shortcutColor}
+                      hoverShadow={hoverShadow}
                     />
                   ))}
                 </AnimatePresence>

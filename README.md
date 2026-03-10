@@ -2,7 +2,7 @@
 
 A fast, minimal new tab page for Chrome and Firefox. Replaces your default new tab with a glassmorphism dashboard featuring quick-launch tiles, live weather, and full visual customization.
 
-![App](banner.png)
+![App](preview.png)
 
 ---
 

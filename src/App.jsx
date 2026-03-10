@@ -61,6 +61,14 @@ const DEFAULT_SETTINGS = {
     tiles: '',
     shortcuts: '',
   },
+  clock: {
+    hour12: true,
+    showSeconds: false,
+    dateFormat: 'full',    // 'full' | 'short' | 'numeric'
+    showGreeting: true,
+    timeSize: 72,
+    dateSize: 14,
+  },
   search: {
     suggestions: true,
   },
@@ -249,7 +257,7 @@ export default function App() {
     return () => { window.removeEventListener('keydown', onDown); window.removeEventListener('keyup', onUp); };
   }, [tiles]);
 
-  const { background, shader, tiles: tileSettings, search: searchSettings = {} } = appSettings;
+  const { background, shader, tiles: tileSettings, search: searchSettings = {}, clock: clockSettings = {} } = appSettings;
 
   // Don't render until storage is loaded — prevents flash of default settings
   if (!loaded) return <div className="w-full h-screen" style={{ background: '#020617' }} />;
@@ -297,7 +305,7 @@ export default function App() {
       {/* ── LAYER 4: Main content ── */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center gap-0">
         <div>
-          <Clock />
+          <Clock clockSettings={clockSettings} />
         </div>
 
         <div

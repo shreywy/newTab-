@@ -1,55 +1,55 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Upload, ChevronDown } from 'lucide-react';
+import { X, Download, Upload, ChevronDown, ChevronRight } from 'lucide-react';
 
 // ── Color presets ──────────────────────────────────────────────────────────
 const THEME_PRESETS = [
   // Dark classics
-  { name: 'Deep Sea',        type: 'solid', color: '#020617', blobColor: '#2596be' },
-  { name: 'Midnight',        type: 'solid', color: '#0d0d0d', blobColor: '#6366f1' },
-  { name: 'Obsidian',        type: 'solid', color: '#13141a', blobColor: '#94a3b8' },
-  { name: 'Carbon',          type: 'solid', color: '#161616', blobColor: '#78716c' },
-  { name: 'Forest',          type: 'solid', color: '#0d1117', blobColor: '#22c55e' },
+  { name: 'Deep Sea',        type: 'solid', color: '#020617' },
+  { name: 'Midnight',        type: 'solid', color: '#0d0d0d' },
+  { name: 'Obsidian',        type: 'solid', color: '#13141a' },
+  { name: 'Carbon',          type: 'solid', color: '#161616' },
+  { name: 'Forest',          type: 'solid', color: '#0d1117' },
   // Popular themes
-  { name: 'Catppuccin',      type: 'solid', color: '#1e1e2e', blobColor: '#cba6f7' },
-  { name: 'Macchiato',       type: 'solid', color: '#24273a', blobColor: '#c6a0f6' },
-  { name: 'Frappe',          type: 'solid', color: '#303446', blobColor: '#ca9ee6' },
-  { name: 'Nord',            type: 'solid', color: '#2e3440', blobColor: '#88c0d0' },
-  { name: 'Nord Polar',      type: 'solid', color: '#3b4252', blobColor: '#81a1c1' },
-  { name: 'Dracula',         type: 'solid', color: '#282a36', blobColor: '#bd93f9' },
-  { name: 'Tokyo Night',     type: 'solid', color: '#1a1b26', blobColor: '#7aa2f7' },
-  { name: 'Tokyo Storm',     type: 'solid', color: '#24283b', blobColor: '#7dcfff' },
-  { name: 'Gruvbox',         type: 'solid', color: '#282828', blobColor: '#fabd2f' },
-  { name: 'Gruvbox Soft',    type: 'solid', color: '#32302f', blobColor: '#d79921' },
-  { name: 'One Dark',        type: 'solid', color: '#282c34', blobColor: '#61afef' },
-  { name: 'Palenight',       type: 'solid', color: '#292d3e', blobColor: '#82aaff' },
-  { name: 'Rose Pine',       type: 'solid', color: '#191724', blobColor: '#eb6f92' },
-  { name: 'Rose Pine Moon',  type: 'solid', color: '#232136', blobColor: '#ea9a97' },
-  { name: 'Kanagawa',        type: 'solid', color: '#1f1f28', blobColor: '#7e9cd8' },
-  { name: 'Everforest',      type: 'solid', color: '#2d353b', blobColor: '#a7c080' },
-  { name: 'Ayu Dark',        type: 'solid', color: '#0b0e14', blobColor: '#e6b450' },
-  { name: 'Solarized Dark',  type: 'solid', color: '#002b36', blobColor: '#268bd2' },
-  { name: 'Monokai',         type: 'solid', color: '#272822', blobColor: '#a6e22e' },
-  { name: 'Nightfox',        type: 'solid', color: '#192330', blobColor: '#719cd6' },
-  { name: 'Moonfly',         type: 'solid', color: '#080808', blobColor: '#74b2ff' },
-  { name: 'Material Dark',   type: 'solid', color: '#212121', blobColor: '#89ddff' },
-  { name: 'Oxocarbon',       type: 'solid', color: '#161616', blobColor: '#be95ff' },
+  { name: 'Catppuccin',      type: 'solid', color: '#1e1e2e' },
+  { name: 'Macchiato',       type: 'solid', color: '#24273a' },
+  { name: 'Frappe',          type: 'solid', color: '#303446' },
+  { name: 'Nord',            type: 'solid', color: '#2e3440' },
+  { name: 'Nord Polar',      type: 'solid', color: '#3b4252' },
+  { name: 'Dracula',         type: 'solid', color: '#282a36' },
+  { name: 'Tokyo Night',     type: 'solid', color: '#1a1b26' },
+  { name: 'Tokyo Storm',     type: 'solid', color: '#24283b' },
+  { name: 'Gruvbox',         type: 'solid', color: '#282828' },
+  { name: 'Gruvbox Soft',    type: 'solid', color: '#32302f' },
+  { name: 'One Dark',        type: 'solid', color: '#282c34' },
+  { name: 'Palenight',       type: 'solid', color: '#292d3e' },
+  { name: 'Rose Pine',       type: 'solid', color: '#191724' },
+  { name: 'Rose Pine Moon',  type: 'solid', color: '#232136' },
+  { name: 'Kanagawa',        type: 'solid', color: '#1f1f28' },
+  { name: 'Everforest',      type: 'solid', color: '#2d353b' },
+  { name: 'Ayu Dark',        type: 'solid', color: '#0b0e14' },
+  { name: 'Solarized Dark',  type: 'solid', color: '#002b36' },
+  { name: 'Monokai',         type: 'solid', color: '#272822' },
+  { name: 'Nightfox',        type: 'solid', color: '#192330' },
+  { name: 'Moonfly',         type: 'solid', color: '#080808' },
+  { name: 'Material Dark',   type: 'solid', color: '#212121' },
+  { name: 'Oxocarbon',       type: 'solid', color: '#161616' },
 ];
 
 const GRADIENT_PRESETS = [
-  { name: 'Dark Nebula',     gradient: 'radial-gradient(ellipse at 0% 0%, #242635 0%, #0a0b10 100%)' },
-  { name: 'Cosmic',          gradient: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' },
-  { name: 'Northern',        gradient: 'linear-gradient(135deg, #0d1117 0%, #1a3a2a 50%, #0d2137 100%)' },
-  { name: 'Ocean Deep',      gradient: 'linear-gradient(135deg, #0a0f12 0%, #0d2137 50%, #0a3d62 100%)' },
-  { name: 'Purple Haze',     gradient: 'linear-gradient(135deg, #16001e 0%, #2d0645 50%, #0d0d2b 100%)' },
-  { name: 'Crimson Dark',    gradient: 'linear-gradient(135deg, #100a0b 0%, #341218 50%, #1a0533 100%)' },
-  { name: 'Sunset Dark',     gradient: 'linear-gradient(135deg, #1a0533 0%, #4a1040 50%, #0d0020 100%)' },
-  { name: 'Gold Dark',       gradient: 'linear-gradient(135deg, #1c1917 0%, #292524 50%, #1c1917 100%)' },
-  { name: 'Aqua Dark',       gradient: 'linear-gradient(135deg, #020617 0%, #062a3a 50%, #020f1a 100%)' },
-  { name: 'Ember',           gradient: 'linear-gradient(135deg, #1a0a00 0%, #3d1c00 50%, #1a0a00 100%)' },
-  { name: 'Mint Dark',       gradient: 'linear-gradient(135deg, #001a12 0%, #003d28 50%, #001a12 100%)' },
-  { name: 'Rose Dark',       gradient: 'linear-gradient(135deg, #1a0010 0%, #3d0028 50%, #1a0010 100%)' },
+  { name: 'Dark Nebula',  gradient: 'radial-gradient(ellipse at 0% 0%, #242635 0%, #0a0b10 100%)' },
+  { name: 'Cosmic',       gradient: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' },
+  { name: 'Northern',     gradient: 'linear-gradient(135deg, #0d1117 0%, #1a3a2a 50%, #0d2137 100%)' },
+  { name: 'Ocean Deep',   gradient: 'linear-gradient(135deg, #0a0f12 0%, #0d2137 50%, #0a3d62 100%)' },
+  { name: 'Purple Haze',  gradient: 'linear-gradient(135deg, #16001e 0%, #2d0645 50%, #0d0d2b 100%)' },
+  { name: 'Crimson Dark', gradient: 'linear-gradient(135deg, #100a0b 0%, #341218 50%, #1a0533 100%)' },
+  { name: 'Sunset Dark',  gradient: 'linear-gradient(135deg, #1a0533 0%, #4a1040 50%, #0d0020 100%)' },
+  { name: 'Gold Dark',    gradient: 'linear-gradient(135deg, #1c1917 0%, #292524 50%, #1c1917 100%)' },
+  { name: 'Aqua Dark',    gradient: 'linear-gradient(135deg, #020617 0%, #062a3a 50%, #020f1a 100%)' },
+  { name: 'Ember',        gradient: 'linear-gradient(135deg, #1a0a00 0%, #3d1c00 50%, #1a0a00 100%)' },
+  { name: 'Mint Dark',    gradient: 'linear-gradient(135deg, #001a12 0%, #003d28 50%, #001a12 100%)' },
+  { name: 'Rose Dark',    gradient: 'linear-gradient(135deg, #1a0010 0%, #3d0028 50%, #1a0010 100%)' },
 ];
 // ──────────────────────────────────────────────────────────────────────────
 
@@ -59,7 +59,6 @@ const MONO_FONTS = ['JetBrains Mono', 'Fira Code', 'Space Mono', 'IBM Plex Mono'
 const c = {
   label: 'text-xs text-white/50 font-medium',
   row: 'flex items-center justify-between gap-3',
-  section: 'text-[10px] font-semibold text-white/30 uppercase tracking-widest',
   input: 'w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-white/25 outline-none focus:border-white/25 transition-colors',
 };
 
@@ -142,12 +141,12 @@ function FontSelect({ label, value, onChange }) {
         <option value="" style={{ background: '#0c0e1a', fontFamily: 'system-ui' }}>Default</option>
         <optgroup label="Sans-serif" style={{ background: '#0c0e1a' }}>
           {SANS_FONTS.map(f => (
-            <option key={f} value={f} style={{ background: '#0c0e1a', fontFamily: `'${f}', system-ui` }}>{f}</option>
+            <option key={f} value={f} style={{ background: '#0c0e1a' }}>{f}</option>
           ))}
         </optgroup>
         <optgroup label="Monospace" style={{ background: '#0c0e1a' }}>
           {MONO_FONTS.map(f => (
-            <option key={f} value={f} style={{ background: '#0c0e1a', fontFamily: `'${f}', monospace` }}>{f}</option>
+            <option key={f} value={f} style={{ background: '#0c0e1a' }}>{f}</option>
           ))}
         </optgroup>
       </select>
@@ -155,20 +154,48 @@ function FontSelect({ label, value, onChange }) {
   );
 }
 
-function SectionDivider() {
-  return <div className="h-px bg-white/6 -mx-5" />;
+function Collapse({ title, children }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between py-2 cursor-pointer group"
+      >
+        <span className="text-[10px] font-semibold text-white/35 uppercase tracking-widest group-hover:text-white/55 transition-colors duration-150">
+          {title}
+        </span>
+        <ChevronRight
+          className="w-3.5 h-3.5 text-white/20 group-hover:text-white/40 flex-shrink-0 transition-all duration-200"
+          style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)' }}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div className="pt-2 pb-3 space-y-3.5">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Subtle separator below each section */}
+      <div className="h-px -mx-5" style={{ background: 'rgba(255,255,255,0.05)' }} />
+    </div>
+  );
 }
 
 function PresetSwatch({ item }) {
   if (item._type === 'gradient') {
-    return (
-      <div className="flex-shrink-0 rounded-lg overflow-hidden ring-1 ring-white/10" style={{ width: 44, height: 28, background: item.gradient }} />
-    );
+    return <div className="flex-shrink-0 rounded-lg overflow-hidden ring-1 ring-white/10" style={{ width: 44, height: 28, background: item.gradient }} />;
   }
-  // Solid: just the base color
-  return (
-    <div className="flex-shrink-0 rounded-lg overflow-hidden ring-1 ring-white/10" style={{ width: 44, height: 28, background: item.color }} />
-  );
+  return <div className="flex-shrink-0 rounded-lg overflow-hidden ring-1 ring-white/10" style={{ width: 44, height: 28, background: item.color }} />;
 }
 
 function PresetDropdown({ onSelect }) {
@@ -244,10 +271,17 @@ function PresetDropdown({ onSelect }) {
 }
 
 export default function SettingsPanel({ settings, onClose, onUpdateSettings, tiles, onImportTiles, onImport, onDone }) {
-  const { background, shader, tiles: tileSettings, fonts: fontSettings = {}, search: searchSettings = {} } = settings;
+  const {
+    background, shader,
+    tiles: tileSettings,
+    fonts: fontSettings = {},
+    search: searchSettings = {},
+    clock: clockSettings = {},
+  } = settings;
+
   const set = (path, val) => onUpdateSettings(path, val);
   const importRef = useRef(null);
-  const [importModal, setImportModal] = useState(null); // { parsed, hasLinks, hasSettings }
+  const [importModal, setImportModal] = useState(null);
   const [importSel, setImportSel] = useState({ links: true, theming: true, tileLayout: true });
 
   const applyPreset = (preset) => {
@@ -269,6 +303,7 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
         shader: settings.shader,
         tiles: settings.tiles,
         fonts: settings.fonts,
+        clock: settings.clock,
         search: settings.search,
       },
     };
@@ -287,9 +322,7 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
     reader.onload = (ev) => {
       try {
         const parsed = JSON.parse(ev.target.result);
-        // Support both new format (with version key) and old links-only array
         if (Array.isArray(parsed)) {
-          // Legacy links-only format
           const valid = parsed.filter(t => t.name && t.url);
           if (valid.length > 0) setImportModal({ parsed: { tiles: valid }, hasLinks: true, hasSettings: false });
         } else if (parsed && typeof parsed === 'object') {
@@ -310,9 +343,7 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
     if (!importModal) return;
     const { parsed, hasLinks, hasSettings } = importModal;
     const result = {};
-    if (hasLinks && importSel.links) {
-      result.tiles = parsed.tiles.filter(t => t.name && t.url);
-    }
+    if (hasLinks && importSel.links) result.tiles = parsed.tiles.filter(t => t.name && t.url);
     if (hasSettings && (importSel.theming || importSel.tileLayout)) {
       const s = {};
       if (importSel.theming && parsed.settings.background) s.background = parsed.settings.background;
@@ -348,67 +379,50 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto hide-scrollbar px-5 py-5 space-y-6">
+      <div className="flex-1 overflow-y-auto hide-scrollbar px-5 py-3">
 
         {/* ── LINKS ── */}
-        <section className="space-y-3">
-          <h3 className={c.section}>Links</h3>
+        <Collapse title="Links">
           <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={handleExport}
+            <button onClick={handleExport}
               className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs text-white/60 hover:text-white cursor-pointer transition-all duration-150"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}
-            >
-              <Download className="w-3.5 h-3.5" />
-              Export
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
+              <Download className="w-3.5 h-3.5" />Export
             </button>
-            <button
-              onClick={() => importRef.current?.click()}
+            <button onClick={() => importRef.current?.click()}
               className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs text-white/60 hover:text-white cursor-pointer transition-all duration-150"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}
-            >
-              <Upload className="w-3.5 h-3.5" />
-              Import
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)' }}>
+              <Upload className="w-3.5 h-3.5" />Import
             </button>
             <input ref={importRef} type="file" accept=".json" className="hidden" onChange={handleImportFile} />
           </div>
           <p className="text-[10px] text-white/25 leading-relaxed">
-            Export saves your tiles as JSON. Import replaces all tiles — use an exported file as a template.
+            Export saves tiles + settings as JSON. Import replaces selectively.
           </p>
-        </section>
-
-        <SectionDivider />
+        </Collapse>
 
         {/* ── PRESETS ── */}
-        <section className="space-y-3">
-          <h3 className={c.section}>Presets</h3>
+        <Collapse title="Presets">
           <PresetDropdown
             onSelect={item => {
               if (item._type === 'gradient') applyPreset({ type: 'gradient', ...item });
               else applyPreset(item);
             }}
           />
-        </section>
-
-        <SectionDivider />
+        </Collapse>
 
         {/* ── BACKGROUND ── */}
-        <section className="space-y-3">
-          <h3 className={c.section}>Background</h3>
+        <Collapse title="Background">
           <PillGroup
             options={[{ value: 'solid', label: 'Solid' }, { value: 'gradient', label: 'Gradient' }, { value: 'image', label: 'Image' }]}
             active={background.type}
             onChange={v => set('background.type', v)}
           />
-
           {background.type === 'solid' && (
-            <div className="space-y-3 pt-1">
-              <ColorRow label="Base Color" value={background.color} onChange={v => set('background.color', v)} />
-            </div>
+            <ColorRow label="Base Color" value={background.color} onChange={v => set('background.color', v)} />
           )}
-
           {background.type === 'gradient' && (
-            <div className="space-y-3 pt-1">
+            <div className="space-y-3">
               <div>
                 <label className={`block ${c.label} mb-1.5`}>Custom CSS Gradient</label>
                 <textarea
@@ -424,9 +438,8 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
               )}
             </div>
           )}
-
           {background.type === 'image' && (
-            <div className="space-y-3 pt-1">
+            <div className="space-y-3">
               <div>
                 <label className={`block ${c.label} mb-1.5`}>Image URL</label>
                 <input type="text" value={background.imageUrl} onChange={e => set('background.imageUrl', e.target.value)} placeholder="https://..." className={c.input} />
@@ -435,13 +448,10 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
               <Slider label="Darkness" value={background.imageDarkness} min={0} max={90} unit="%" onChange={v => set('background.imageDarkness', v)} />
             </div>
           )}
-        </section>
-
-        <SectionDivider />
+        </Collapse>
 
         {/* ── SHADER OVERLAY ── */}
-        <section className="space-y-3">
-          <h3 className={c.section}>Shader Overlay</h3>
+        <Collapse title="Shader Overlay">
           <PillGroup
             options={[{ value: 'none', label: 'None' }, { value: 'aurora', label: 'Aurora' }, { value: 'falling', label: 'Falling' }]}
             active={shader.type}
@@ -456,13 +466,27 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
           {shader.type === 'falling' && (
             <ColorRow label="Line Color" value={shader.color} onChange={v => set('shader.color', v)} />
           )}
-        </section>
+        </Collapse>
 
-        <SectionDivider />
+        {/* ── CLOCK ── */}
+        <Collapse title="Clock">
+          <Toggle label="12-Hour Format" value={clockSettings.hour12 ?? true} onChange={v => set('clock.hour12', v)} />
+          <Toggle label="Show Seconds" value={clockSettings.showSeconds ?? false} onChange={v => set('clock.showSeconds', v)} />
+          <Toggle label="Show Greeting" value={clockSettings.showGreeting ?? true} onChange={v => set('clock.showGreeting', v)} />
+          <div className={c.row}>
+            <span className={c.label}>Date Format</span>
+            <PillGroup
+              options={[{ value: 'full', label: 'Full' }, { value: 'short', label: 'Short' }, { value: 'numeric', label: '#' }]}
+              active={clockSettings.dateFormat ?? 'full'}
+              onChange={v => set('clock.dateFormat', v)}
+            />
+          </div>
+          <Slider label="Time Size" value={clockSettings.timeSize ?? 72} min={36} max={120} unit="px" onChange={v => set('clock.timeSize', v)} />
+          <Slider label="Date Size" value={clockSettings.dateSize ?? 14} min={10} max={24} unit="px" onChange={v => set('clock.dateSize', v)} />
+        </Collapse>
 
         {/* ── FONTS ── */}
-        <section className="space-y-3.5">
-          <h3 className={c.section}>Fonts</h3>
+        <Collapse title="Fonts">
           <FontSelect label="Global" value={fontSettings.global ?? ''} onChange={v => set('fonts.global', v)} />
           <div className="h-px -mx-1" style={{ background: 'rgba(255,255,255,0.05)' }} />
           <FontSelect label="Clock" value={fontSettings.time ?? ''} onChange={v => set('fonts.time', v)} />
@@ -472,22 +496,17 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
           <FontSelect label="Tile Names" value={fontSettings.tiles ?? ''} onChange={v => set('fonts.tiles', v)} />
           <FontSelect label="Shortcuts" value={fontSettings.shortcuts ?? ''} onChange={v => set('fonts.shortcuts', v)} />
           <p className="text-[10px] text-white/25">Individual overrides Global. Default = system font.</p>
-        </section>
-
-        <SectionDivider />
+        </Collapse>
 
         {/* ── SEARCH ── */}
-        <section className="space-y-3">
-          <h3 className={c.section}>Search</h3>
+        <Collapse title="Search">
           <Toggle label="Show Suggestions" value={searchSettings.suggestions ?? true} onChange={v => set('search.suggestions', v)} />
-        </section>
-
-        <SectionDivider />
+        </Collapse>
 
         {/* ── TILES ── */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className={c.section}>Tiles</h3>
+        <Collapse title="Tiles">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] text-white/25">Layout &amp; appearance</span>
             <button
               onClick={() => set('tiles', { size: 100, columns: 7, gap: 16, showShortcuts: false, shortcutStyle: 'badge', shortcutColor: '', hoverShadow: false })}
               className="text-[10px] text-white/30 hover:text-white/55 cursor-pointer transition-colors"
@@ -500,7 +519,7 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
           <Slider label="Gap" value={tileSettings.gap} min={4} max={40} unit="px" onChange={v => set('tiles.gap', v)} />
           <Toggle label="Hover Shadow" value={tileSettings.hoverShadow ?? false} onChange={v => set('tiles.hoverShadow', v)} />
           <Toggle label="Show Shortcut Badges" value={tileSettings.showShortcuts ?? false} onChange={v => set('tiles.showShortcuts', v)} />
-          {(tileSettings.showShortcuts) && (<>
+          {tileSettings.showShortcuts && (<>
             <div className={c.row}>
               <span className={c.label}>Badge Style</span>
               <PillGroup
@@ -511,8 +530,10 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
             </div>
             <ColorRow label="Badge Color" value={tileSettings.shortcutColor || '#ffffff'} onChange={v => set('tiles.shortcutColor', v)} />
           </>)}
-        </section>
+        </Collapse>
 
+        {/* Bottom spacer */}
+        <div className="h-2" />
       </div>
 
       {/* Finish Editing button */}
@@ -528,32 +549,23 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
         </button>
       </div>
 
-      {/* Import selection modal — rendered in a portal to escape the panel's CSS transform */}
+      {/* Import selection modal — portal to escape panel's CSS transform */}
       {createPortal(
         <AnimatePresence>
         {importModal && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className="fixed inset-0 z-[100]"
               style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
               onClick={() => setImportModal(null)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.15 }}
               className="fixed z-[101] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-80 rounded-2xl p-6 space-y-4"
-              style={{
-                background: 'rgba(12, 14, 28, 0.97)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                backdropFilter: 'blur(24px)',
-                boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
-              }}
+              style={{ background: 'rgba(12, 14, 28, 0.97)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', boxShadow: '0 24px 64px rgba(0,0,0,0.6)' }}
             >
               <div>
                 <p className="text-sm font-semibold text-white/90 mb-1">Import</p>
@@ -561,35 +573,30 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
               </div>
               <div className="space-y-2.5">
                 {importModal.hasLinks && (
-                  <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" checked={importSel.links} onChange={e => setImportSel(s => ({ ...s, links: e.target.checked }))}
-                      className="w-4 h-4 rounded accent-[#2596be] cursor-pointer" />
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked={importSel.links} onChange={e => setImportSel(s => ({ ...s, links: e.target.checked }))} className="w-4 h-4 rounded accent-[#2596be] cursor-pointer" />
                     <div>
                       <p className="text-xs text-white/80">Links</p>
                       <p className="text-[10px] text-white/35">{importModal.parsed.tiles?.length} tile{importModal.parsed.tiles?.length !== 1 ? 's' : ''}</p>
                     </div>
                   </label>
                 )}
-                {importModal.hasSettings && (
-                  <>
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input type="checkbox" checked={importSel.theming} onChange={e => setImportSel(s => ({ ...s, theming: e.target.checked }))}
-                        className="w-4 h-4 rounded accent-[#2596be] cursor-pointer" />
-                      <div>
-                        <p className="text-xs text-white/80">Theming</p>
-                        <p className="text-[10px] text-white/35">Background &amp; shader</p>
-                      </div>
-                    </label>
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input type="checkbox" checked={importSel.tileLayout} onChange={e => setImportSel(s => ({ ...s, tileLayout: e.target.checked }))}
-                        className="w-4 h-4 rounded accent-[#2596be] cursor-pointer" />
-                      <div>
-                        <p className="text-xs text-white/80">Tile Layout</p>
-                        <p className="text-[10px] text-white/35">Size, columns, gap</p>
-                      </div>
-                    </label>
-                  </>
-                )}
+                {importModal.hasSettings && (<>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked={importSel.theming} onChange={e => setImportSel(s => ({ ...s, theming: e.target.checked }))} className="w-4 h-4 rounded accent-[#2596be] cursor-pointer" />
+                    <div>
+                      <p className="text-xs text-white/80">Theming</p>
+                      <p className="text-[10px] text-white/35">Background &amp; shader</p>
+                    </div>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked={importSel.tileLayout} onChange={e => setImportSel(s => ({ ...s, tileLayout: e.target.checked }))} className="w-4 h-4 rounded accent-[#2596be] cursor-pointer" />
+                    <div>
+                      <p className="text-xs text-white/80">Tile Layout</p>
+                      <p className="text-[10px] text-white/35">Size, columns, gap</p>
+                    </div>
+                  </label>
+                </>)}
               </div>
               <div className="flex gap-2 pt-1">
                 <button onClick={() => setImportModal(null)}

@@ -208,7 +208,7 @@ function PresetDropdown({ onSelect }) {
   );
 }
 
-export default function SettingsPanel({ settings, onClose, onUpdateSettings, tiles, onImportTiles, onImport }) {
+export default function SettingsPanel({ settings, onClose, onUpdateSettings, tiles, onImportTiles, onImport, onDone }) {
   const { background, shader, tiles: tileSettings } = settings;
   const set = (path, val) => onUpdateSettings(path, val);
   const importRef = useRef(null);
@@ -430,8 +430,32 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
           <Slider label="Columns" value={tileSettings.columns} min={2} max={12} onChange={v => set('tiles.columns', v)} />
           <Slider label="Gap" value={tileSettings.gap} min={4} max={40} unit="px" onChange={v => set('tiles.gap', v)} />
           <Toggle label="Show Shortcut Badges" value={tileSettings.showShortcuts ?? false} onChange={v => set('tiles.showShortcuts', v)} />
+          {(tileSettings.showShortcuts) && (<>
+            <div className={c.row}>
+              <span className={c.label}>Badge Style</span>
+              <PillGroup
+                options={[{ value: 'badge', label: 'Key' }, { value: 'dot', label: 'Dot' }]}
+                active={tileSettings.shortcutStyle ?? 'badge'}
+                onChange={v => set('tiles.shortcutStyle', v)}
+              />
+            </div>
+            <ColorRow label="Badge Color" value={tileSettings.shortcutColor || '#ffffff'} onChange={v => set('tiles.shortcutColor', v)} />
+          </>)}
         </section>
 
+      </div>
+
+      {/* Finish Editing button */}
+      <div className="px-5 py-4 flex-shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+        <button
+          onClick={onDone}
+          className="w-full py-2.5 rounded-xl text-sm font-medium text-white/80 hover:text-white cursor-pointer transition-all duration-150"
+          style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.07)'}
+        >
+          Finish Editing
+        </button>
       </div>
 
       {/* Import selection modal — rendered in a portal to escape the panel's CSS transform */}

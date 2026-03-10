@@ -7,7 +7,7 @@ import TileCard from './TileCard';
 
 const OVERFLOW_PADDING = 28; // px of extra space for hover scale animations
 
-export default function TileGrid({ tiles, editMode, onReorder, onAdd, onEdit, tileSize = 100, columns = 7, gap = 16, heldShortcut = null, showShortcuts = false }) {
+export default function TileGrid({ tiles, editMode, onReorder, onAdd, onEdit, tileSize = 100, columns = 7, gap = 16, heldShortcut = null, showShortcuts = false, shortcutStyle = 'badge', shortcutColor = '' }) {
   const outerRef = useRef(null);
   const innerRef = useRef(null);
   const [scrollY, setScrollY] = useState(0);
@@ -118,6 +118,8 @@ export default function TileGrid({ tiles, editMode, onReorder, onAdd, onEdit, ti
                       tileSize={tileSize}
                       heldShortcut={heldShortcut}
                       showShortcuts={showShortcuts}
+                      shortcutStyle={shortcutStyle}
+                      shortcutColor={shortcutColor}
                     />
                   ))}
                 </AnimatePresence>

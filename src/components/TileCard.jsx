@@ -4,7 +4,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Pencil } from 'lucide-react';
 
-export default function TileCard({ tile, editMode, onEdit, tileSize = 100, heldShortcut = null, showShortcuts = false }) {
+export default function TileCard({ tile, editMode, onEdit, tileSize = 100, heldShortcut = null, showShortcuts = false, shortcutStyle = 'badge', shortcutColor = '' }) {
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -127,11 +127,23 @@ export default function TileCard({ tile, editMode, onEdit, tileSize = 100, heldS
         {tile.shortcut && !editMode && (showShortcuts || isHeld) && (
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: isHeld ? 1 : 0.55 }}
-            className="absolute bottom-1.5 right-1.5 flex items-center justify-center rounded font-mono"
-            style={{ fontSize: '9px', lineHeight: 1, padding: '1px 4px', background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.7)' }}
+            animate={{ opacity: isHeld ? 1 : 0.6 }}
+            className="absolute bottom-1.5 right-1.5 flex items-center justify-center"
+            style={shortcutStyle === 'dot'
+              ? {
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: shortcutColor || 'rgba(255,255,255,0.55)',
+                }
+              : {
+                  fontSize: '9px', lineHeight: 1, padding: '1px 4px',
+                  borderRadius: 4, fontFamily: 'monospace',
+                  background: shortcutColor ? `${shortcutColor}28` : 'rgba(255,255,255,0.10)',
+                  border: `1px solid ${shortcutColor || 'rgba(255,255,255,0.18)'}`,
+                  color: shortcutColor || 'rgba(255,255,255,0.75)',
+                }
+            }
           >
-            {tile.shortcut.toUpperCase()}
+            {shortcutStyle !== 'dot' && tile.shortcut.toUpperCase()}
           </motion.div>
         )}
       </motion.div>

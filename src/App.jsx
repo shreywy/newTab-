@@ -48,6 +48,8 @@ const DEFAULT_SETTINGS = {
     columns: 7,
     gap: 16,
     showShortcuts: false,
+    shortcutStyle: 'badge',   // 'badge' | 'dot'
+    shortcutColor: '',        // '' = default white/glass, any hex = tinted
   },
 };
 
@@ -267,6 +269,8 @@ export default function App() {
             gap={tileSettings.gap}
             heldShortcut={heldShortcut}
             showShortcuts={tileSettings.showShortcuts}
+            shortcutStyle={tileSettings.shortcutStyle}
+            shortcutColor={tileSettings.shortcutColor}
           />
         </div>
       </div>
@@ -360,6 +364,7 @@ export default function App() {
               tiles={tiles}
               onImportTiles={handleImportTiles}
               onImport={handleImport}
+              onDone={() => { setShowSettings(false); setEditMode(false); }}
             />
           </>
         )}

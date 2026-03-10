@@ -147,9 +147,19 @@ export default function App() {
       '--font-tiles':     resolve(f.tiles),
       '--font-shortcuts': resolve(f.shortcuts),
     };
+    // Build proper font-family stack (monospace fonts need mono fallback)
+    const MONO_FONTS = new Set(['JetBrains Mono', 'Fira Code', 'Space Mono', 'IBM Plex Mono', 'Geist Mono', 'Inconsolata', 'Source Code Pro', 'Courier New']);
+    const SERIF_FONTS = new Set(['Times New Roman', 'Georgia', 'Playfair Display', 'Merriweather', 'Lora', 'EB Garamond', 'DM Serif Display', 'Cormorant Garamond']);
+    const fontStack = (name) => {
+      if (!name) return '';
+      if (MONO_FONTS.has(name)) return `'${name}', ui-monospace, monospace`;
+      if (SERIF_FONTS.has(name)) return `'${name}', ui-serif, serif`;
+      return `'${name}', system-ui, sans-serif`;
+    };
     const root = document.documentElement;
     for (const [k, v] of Object.entries(assignments)) {
-      if (v) root.style.setProperty(k, `'${v}', system-ui, sans-serif`);
+      const stack = fontStack(v);
+      if (stack) root.style.setProperty(k, stack);
       else root.style.removeProperty(k);
     }
     // Dynamically inject Google Fonts link for any selected fonts
@@ -312,7 +322,12 @@ export default function App() {
 
       {/* ── LAYER 3: Header ── */}
       <div className="absolute top-0 left-0 right-0 z-20 flex justify-end items-start p-6">
-        <WeatherWidget />
+        <motion.div
+          animate={{ x: showSettings ? -292 : 0 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+        >
+          <WeatherWidget />
+        </motion.div>
       </div>
 
       {/* ── LAYER 4: Main content ── */}

@@ -32,8 +32,6 @@ const DEFAULT_SETTINGS = {
   background: {
     type: 'solid',       // 'solid' | 'gradient' | 'image'
     color: '#020617',    // base dark color
-    blobColor: '#2596be',
-    showBlobs: true,
     gradient: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
     imageUrl: '',
     imageBlur: 8,
@@ -154,12 +152,38 @@ export default function App() {
     setTiles(imported.map((t, i) => ({ ...t, id: t.id || `imported-${Date.now()}-${i}` })));
   }, []);
 
+  const handleImport = useCallback(({ tiles: importedTiles, settings: importedSettings }) => {
+    if (importedTiles) {
+      setTiles(importedTiles.map((t, i) => ({ ...t, id: t.id || `imported-${Date.now()}-${i}` })));
+    }
+    if (importedSettings) {
+      setAppSettings(prev => deepMerge(prev, importedSettings));
+    }
+  }, []);
+
   const toggleEditMode = useCallback(() => {
     setEditMode(prev => {
       if (prev) setShowSettings(false);
       return !prev;
     });
   }, []);
+
+  // Tile keyboard shortcuts
+  useEffect(() => {
+    const handler = (e) => {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const key = e.key.toLowerCase();
+      const match = tiles.find(t => t.shortcut && t.shortcut.toLowerCase() === key);
+      if (match) {
+        e.preventDefault();
+        window.location.href = match.url;
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [tiles]);
 
   const { background, shader, tiles: tileSettings } = appSettings;
 
@@ -170,13 +194,6 @@ export default function App() {
     <div className="relative w-full h-screen overflow-hidden" style={{ background: background.color }}>
 
       {/* ── LAYER 1: Static background ── */}
-      {background.type === 'solid' && background.showBlobs !== false && (
-        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full filter blur-3xl opacity-15 animate-blob" style={{ background: background.blobColor }} />
-          <div className="absolute top-1/3 right-1/4 w-80 h-80 rounded-full filter blur-3xl opacity-10 animate-blob animation-delay-2000" style={{ background: background.blobColor }} />
-          <div className="absolute bottom-1/4 left-1/2 w-72 h-72 rounded-full filter blur-3xl opacity-10 animate-blob animation-delay-4000" style={{ background: background.blobColor }} />
-        </div>
-      )}
       {background.type === 'gradient' && (
         <div
           className="fixed inset-0 z-0 pointer-events-none"
@@ -250,18 +267,6 @@ export default function App() {
             transition={{ duration: 0.15 }}
             className="fixed bottom-6 right-6 z-30 flex items-center gap-2"
           >
-            {editMode && (
-              <motion.button
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                onClick={() => setShowSettings(v => !v)}
-                className={`glass glass-hover w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 ${showSettings ? 'text-[#2596be]' : 'text-white/60 hover:text-white'}`}
-                title="Settings"
-              >
-                <Settings className="w-4 h-4" />
-              </motion.button>
-            )}
             <button
               onClick={toggleEditMode}
               className={`glass glass-hover w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 ${editMode ? 'text-[#2596be]' : 'text-white/60 hover:text-white'}`}
@@ -269,6 +274,19 @@ export default function App() {
             >
               {editMode ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
             </button>
+            {editMode && (
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                onClick={() => setShowSettings(v => !v)}
+                className={`glass glass-hover w-9 h-9 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 ${showSettings ? 'text-[#2596be]' : 'text-white/60 hover:text-white'}`}
+                title="Settings"
+              >
+                <Settings className="w-4 h-4" />
+              </motion.button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -292,6 +310,7 @@ export default function App() {
               onClose={() => setShowSettings(false)}
               tiles={tiles}
               onImportTiles={handleImportTiles}
+              onImport={handleImport}
             />
           </>
         )}

@@ -60,32 +60,40 @@ export default function WeatherWidget() {
     }, () => setVisible(false), { timeout: 8000 });
   }, []);
 
-  if (!visible || !weather) return null;
+  if (!visible) return null;
 
-  const { label, Icon } = getWeatherInfo(weather.code);
+  const { label, Icon } = weather ? getWeatherInfo(weather.code) : { label: '', Icon: Cloud };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.1 }}
+      initial={{ opacity: 0.35 }}
+      animate={{ opacity: hovered ? 1 : 0.35 }}
+      transition={{ duration: 0.25 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className="glass rounded-xl overflow-hidden cursor-default"
-      style={{ minWidth: '152px' }}
+      style={{ minWidth: '152px', border: 'none' }}
     >
       {/* Always-visible current conditions */}
       <div className="px-3 py-2.5 flex items-center gap-2.5">
         <Icon className="w-5 h-5 text-white/60 flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-lg font-light text-white leading-none">{weather.temp}°</span>
-            <span className="text-xs text-white/40">{label}</span>
-          </div>
-          {weather.city && (
-            <div className="flex items-center gap-1 mt-0.5">
-              <MapPin className="w-2.5 h-2.5 text-white/30 flex-shrink-0" />
-              <span className="text-[10px] text-white/40 truncate">{weather.city}</span>
+          {weather ? (
+            <>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-lg font-light text-white leading-none">{weather.temp}°</span>
+                <span className="text-xs text-white/40">{label}</span>
+              </div>
+              {weather.city && (
+                <div className="flex items-center gap-1 mt-0.5">
+                  <MapPin className="w-2.5 h-2.5 text-white/30 flex-shrink-0" />
+                  <span className="text-[10px] text-white/40 truncate">{weather.city}</span>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xs text-white/30">Loading...</span>
             </div>
           )}
         </div>
@@ -101,7 +109,7 @@ export default function WeatherWidget() {
             transition={{ duration: 0.22, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            <div className="border-t border-white/8 px-3 py-2 space-y-1.5">
+            <div className="px-3 py-2 space-y-1.5" style={{ borderTop: '1px solid rgba(180,185,210,0.08)' }}>
               {forecast.map((day) => {
                 const { Icon: DayIcon } = getWeatherInfo(day.code);
                 return (

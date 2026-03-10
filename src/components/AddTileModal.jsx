@@ -33,6 +33,7 @@ export default function AddTileModal({ tile, onSave, onDelete, onClose }) {
     return 'auto';
   });
   const [color, setColor] = useState(tile?.color ?? '#6366F1');
+  const [shortcut, setShortcut] = useState(tile?.shortcut ?? '');
   const [imgError, setImgError] = useState(false);
   const [suggestedColor, setSuggestedColor] = useState(null);
 
@@ -77,8 +78,9 @@ export default function AddTileModal({ tile, onSave, onDelete, onClose }) {
       icon: iconMode === 'emoji' ? icon.trim() : '',
       iconUrl: iconMode === 'auto' ? iconUrl : '',
       color,
+      shortcut: shortcut.trim().charAt(0).toLowerCase() || '',
     });
-  }, [name, url, icon, iconUrl, iconMode, color, tile, onSave]);
+  }, [name, url, icon, iconUrl, iconMode, color, shortcut, tile, onSave]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -206,6 +208,25 @@ export default function AddTileModal({ tile, onSave, onDelete, onClose }) {
                 <input type="color" value={color} onChange={e => setColor(e.target.value)} className="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
                 <div className={`w-7 h-7 rounded-full border border-white/30 transition-all ${!COLOR_PRESETS.includes(color) ? 'ring-2 ring-white/50 ring-offset-1 scale-110' : 'hover:scale-110'}`} style={{ background: color }} />
               </div>
+            </div>
+          </div>
+
+          {/* Shortcut key */}
+          <div>
+            <label className={labelCls}>Shortcut Key <span className="text-white/25 font-normal">(optional)</span></label>
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                value={shortcut}
+                onChange={e => setShortcut(e.target.value.replace(/[^a-zA-Z0-9]/, '').slice(0, 1))}
+                placeholder="a–z, 0–9"
+                maxLength={1}
+                className={inputCls}
+                style={{ width: '64px', textAlign: 'center', fontFamily: 'monospace', fontSize: '16px' }}
+              />
+              {shortcut && (
+                <span className="text-[11px] text-white/35">Press <kbd className="px-1.5 py-0.5 rounded text-white/50 font-mono text-xs" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>{shortcut.toUpperCase()}</kbd> on the new tab page to open</span>
+              )}
             </div>
           </div>
         </div>

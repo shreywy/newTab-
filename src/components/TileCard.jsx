@@ -118,6 +118,16 @@ export default function TileCard({ tile, editMode, onEdit, tileSize = 100 }) {
         >
           {tile.name}
         </span>
+
+        {/* Shortcut badge */}
+        {tile.shortcut && !editMode && (
+          <div
+            className="absolute bottom-1.5 right-1.5 flex items-center justify-center rounded font-mono text-white/40"
+            style={{ fontSize: '9px', lineHeight: 1, padding: '1px 4px', background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
+          >
+            {tile.shortcut.toUpperCase()}
+          </div>
+        )}
       </motion.div>
     </div>
   );

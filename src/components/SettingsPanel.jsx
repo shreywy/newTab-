@@ -1,30 +1,54 @@
-import React, { useRef } from 'react';
-import { motion } from 'framer-motion';
-import { X, Download, Upload } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Download, Upload, ChevronDown } from 'lucide-react';
 
 // ── Color presets ──────────────────────────────────────────────────────────
 const THEME_PRESETS = [
-  { name: 'Deep Sea',      type: 'solid',    color: '#020617', blobColor: '#2596be' },
-  { name: 'Catppuccin',    type: 'solid',    color: '#1e1e2e', blobColor: '#cba6f7' },
-  { name: 'Macchiato',     type: 'solid',    color: '#24273a', blobColor: '#c6a0f6' },
-  { name: 'Nord',          type: 'solid',    color: '#2e3440', blobColor: '#88c0d0' },
-  { name: 'Dracula',       type: 'solid',    color: '#282a36', blobColor: '#bd93f9' },
-  { name: 'Tokyo Night',   type: 'solid',    color: '#1a1b26', blobColor: '#7aa2f7' },
-  { name: 'Gruvbox',       type: 'solid',    color: '#282828', blobColor: '#fabd2f' },
-  { name: 'One Dark',      type: 'solid',    color: '#282c34', blobColor: '#61afef' },
-  { name: 'Forest',        type: 'solid',    color: '#0d1117', blobColor: '#22c55e' },
-  { name: 'Midnight',      type: 'solid',    color: '#0d0d0d', blobColor: '#6366f1' },
+  // Dark classics
+  { name: 'Deep Sea',        type: 'solid', color: '#020617', blobColor: '#2596be' },
+  { name: 'Midnight',        type: 'solid', color: '#0d0d0d', blobColor: '#6366f1' },
+  { name: 'Obsidian',        type: 'solid', color: '#13141a', blobColor: '#94a3b8' },
+  { name: 'Carbon',          type: 'solid', color: '#161616', blobColor: '#78716c' },
+  { name: 'Forest',          type: 'solid', color: '#0d1117', blobColor: '#22c55e' },
+  // Popular themes
+  { name: 'Catppuccin',      type: 'solid', color: '#1e1e2e', blobColor: '#cba6f7' },
+  { name: 'Macchiato',       type: 'solid', color: '#24273a', blobColor: '#c6a0f6' },
+  { name: 'Frappe',          type: 'solid', color: '#303446', blobColor: '#ca9ee6' },
+  { name: 'Nord',            type: 'solid', color: '#2e3440', blobColor: '#88c0d0' },
+  { name: 'Nord Polar',      type: 'solid', color: '#3b4252', blobColor: '#81a1c1' },
+  { name: 'Dracula',         type: 'solid', color: '#282a36', blobColor: '#bd93f9' },
+  { name: 'Tokyo Night',     type: 'solid', color: '#1a1b26', blobColor: '#7aa2f7' },
+  { name: 'Tokyo Storm',     type: 'solid', color: '#24283b', blobColor: '#7dcfff' },
+  { name: 'Gruvbox',         type: 'solid', color: '#282828', blobColor: '#fabd2f' },
+  { name: 'Gruvbox Soft',    type: 'solid', color: '#32302f', blobColor: '#d79921' },
+  { name: 'One Dark',        type: 'solid', color: '#282c34', blobColor: '#61afef' },
+  { name: 'Palenight',       type: 'solid', color: '#292d3e', blobColor: '#82aaff' },
+  { name: 'Rose Pine',       type: 'solid', color: '#191724', blobColor: '#eb6f92' },
+  { name: 'Rose Pine Moon',  type: 'solid', color: '#232136', blobColor: '#ea9a97' },
+  { name: 'Kanagawa',        type: 'solid', color: '#1f1f28', blobColor: '#7e9cd8' },
+  { name: 'Everforest',      type: 'solid', color: '#2d353b', blobColor: '#a7c080' },
+  { name: 'Ayu Dark',        type: 'solid', color: '#0b0e14', blobColor: '#e6b450' },
+  { name: 'Solarized Dark',  type: 'solid', color: '#002b36', blobColor: '#268bd2' },
+  { name: 'Monokai',         type: 'solid', color: '#272822', blobColor: '#a6e22e' },
+  { name: 'Nightfox',        type: 'solid', color: '#192330', blobColor: '#719cd6' },
+  { name: 'Moonfly',         type: 'solid', color: '#080808', blobColor: '#74b2ff' },
+  { name: 'Material Dark',   type: 'solid', color: '#212121', blobColor: '#89ddff' },
+  { name: 'Oxocarbon',       type: 'solid', color: '#161616', blobColor: '#be95ff' },
 ];
 
 const GRADIENT_PRESETS = [
-  { name: 'Cosmic',        gradient: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' },
-  { name: 'Northern',      gradient: 'linear-gradient(135deg, #0d1117 0%, #1a3a2a 50%, #0d2137 100%)' },
-  { name: 'Ocean Deep',    gradient: 'linear-gradient(135deg, #0a0f12 0%, #0d2137 50%, #0a3d62 100%)' },
-  { name: 'Purple Haze',   gradient: 'linear-gradient(135deg, #16001e 0%, #2d0645 50%, #0d0d2b 100%)' },
-  { name: 'Crimson Dark',  gradient: 'linear-gradient(135deg, #100a0b 0%, #341218 50%, #1a0533 100%)' },
-  { name: 'Sunset Dark',   gradient: 'linear-gradient(135deg, #1a0533 0%, #4a1040 50%, #0d0020 100%)' },
-  { name: 'Gold Dark',     gradient: 'linear-gradient(135deg, #1c1917 0%, #292524 50%, #1c1917 100%)' },
-  { name: 'Aqua Dark',     gradient: 'linear-gradient(135deg, #020617 0%, #062a3a 50%, #020f1a 100%)' },
+  { name: 'Dark Nebula',     gradient: 'radial-gradient(ellipse at 0% 0%, #242635 0%, #0a0b10 100%)' },
+  { name: 'Cosmic',          gradient: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)' },
+  { name: 'Northern',        gradient: 'linear-gradient(135deg, #0d1117 0%, #1a3a2a 50%, #0d2137 100%)' },
+  { name: 'Ocean Deep',      gradient: 'linear-gradient(135deg, #0a0f12 0%, #0d2137 50%, #0a3d62 100%)' },
+  { name: 'Purple Haze',     gradient: 'linear-gradient(135deg, #16001e 0%, #2d0645 50%, #0d0d2b 100%)' },
+  { name: 'Crimson Dark',    gradient: 'linear-gradient(135deg, #100a0b 0%, #341218 50%, #1a0533 100%)' },
+  { name: 'Sunset Dark',     gradient: 'linear-gradient(135deg, #1a0533 0%, #4a1040 50%, #0d0020 100%)' },
+  { name: 'Gold Dark',       gradient: 'linear-gradient(135deg, #1c1917 0%, #292524 50%, #1c1917 100%)' },
+  { name: 'Aqua Dark',       gradient: 'linear-gradient(135deg, #020617 0%, #062a3a 50%, #020f1a 100%)' },
+  { name: 'Ember',           gradient: 'linear-gradient(135deg, #1a0a00 0%, #3d1c00 50%, #1a0a00 100%)' },
+  { name: 'Mint Dark',       gradient: 'linear-gradient(135deg, #001a12 0%, #003d28 50%, #001a12 100%)' },
+  { name: 'Rose Dark',       gradient: 'linear-gradient(135deg, #1a0010 0%, #3d0028 50%, #1a0010 100%)' },
 ];
 // ──────────────────────────────────────────────────────────────────────────
 
@@ -99,16 +123,101 @@ function SectionDivider() {
   return <div className="h-px bg-white/6 -mx-5" />;
 }
 
-export default function SettingsPanel({ settings, onClose, onUpdateSettings, tiles, onImportTiles }) {
+function PresetSwatch({ item }) {
+  if (item._type === 'gradient') {
+    return (
+      <div className="flex-shrink-0 rounded-lg overflow-hidden ring-1 ring-white/10" style={{ width: 44, height: 28, background: item.gradient }} />
+    );
+  }
+  // Solid: just the base color
+  return (
+    <div className="flex-shrink-0 rounded-lg overflow-hidden ring-1 ring-white/10" style={{ width: 44, height: 28, background: item.color }} />
+  );
+}
+
+function PresetDropdown({ onSelect }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const groups = [
+    { label: 'Solid', items: THEME_PRESETS.map(p => ({ ...p, _type: 'solid' })) },
+    { label: 'Gradient', items: GRADIENT_PRESETS.map(p => ({ ...p, _type: 'gradient' })) },
+  ];
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-white/50 cursor-pointer transition-colors"
+        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)' }}
+      >
+        <span>Choose a preset...</span>
+        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.12 }}
+            className="absolute left-0 right-0 top-full mt-1.5 rounded-xl z-50"
+            style={{
+              background: 'rgba(8, 10, 22, 0.92)',
+              backdropFilter: 'blur(24px)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+              maxHeight: '280px',
+              overflowY: 'auto',
+            }}
+          >
+            {groups.map((group, gi) => (
+              <div key={group.label}>
+                {gi > 0 && <div className="h-px mx-3 my-1" style={{ background: 'rgba(255,255,255,0.08)' }} />}
+                <div className="px-3 pt-2.5 pb-1.5">
+                  <span className="text-[9px] font-semibold text-white/30 uppercase tracking-widest">{group.label}</span>
+                </div>
+                {group.items.map(item => (
+                  <button
+                    key={item.name}
+                    onClick={() => { onSelect(item); setOpen(false); }}
+                    className="w-full flex items-center gap-3 px-3 py-1.5 text-left cursor-pointer"
+                    style={{ color: 'rgba(255,255,255,0.70)' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    <PresetSwatch item={item} />
+                    <span className="text-xs">{item.name}</span>
+                  </button>
+                ))}
+                <div className="h-1.5" />
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+export default function SettingsPanel({ settings, onClose, onUpdateSettings, tiles, onImportTiles, onImport }) {
   const { background, shader, tiles: tileSettings } = settings;
   const set = (path, val) => onUpdateSettings(path, val);
   const importRef = useRef(null);
+  const [importModal, setImportModal] = useState(null); // { parsed, hasLinks, hasSettings }
+  const [importSel, setImportSel] = useState({ links: true, theming: true, tileLayout: true });
 
   const applyPreset = (preset) => {
     if (preset.type === 'solid') {
       set('background.type', 'solid');
       set('background.color', preset.color);
-      set('background.blobColor', preset.blobColor);
     } else if (preset.type === 'gradient') {
       set('background.type', 'gradient');
       set('background.gradient', preset.gradient);
@@ -116,31 +225,65 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
   };
 
   const handleExport = () => {
-    const data = tiles.map(({ id, name, url, icon, iconUrl, color }) => ({
-      name, url, icon, iconUrl, color,
-    }));
+    const data = {
+      version: 1,
+      tiles: tiles.map(({ name, url, icon, iconUrl, color }) => ({ name, url, icon, iconUrl, color })),
+      settings: {
+        background: settings.background,
+        shader: settings.shader,
+        tiles: settings.tiles,
+      },
+    };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'newtab-links.json';
+    a.download = 'newtab-backup.json';
     a.click();
     URL.revokeObjectURL(a.href);
   };
 
-  const handleImport = (e) => {
+  const handleImportFile = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
         const parsed = JSON.parse(ev.target.result);
-        if (!Array.isArray(parsed)) return;
-        const valid = parsed.filter(t => t.name && t.url);
-        if (valid.length > 0) onImportTiles(valid);
+        // Support both new format (with version key) and old links-only array
+        if (Array.isArray(parsed)) {
+          // Legacy links-only format
+          const valid = parsed.filter(t => t.name && t.url);
+          if (valid.length > 0) setImportModal({ parsed: { tiles: valid }, hasLinks: true, hasSettings: false });
+        } else if (parsed && typeof parsed === 'object') {
+          const hasLinks = Array.isArray(parsed.tiles) && parsed.tiles.some(t => t.name && t.url);
+          const hasSettings = parsed.settings && typeof parsed.settings === 'object';
+          if (hasLinks || hasSettings) {
+            setImportModal({ parsed, hasLinks, hasSettings });
+            setImportSel({ links: hasLinks, theming: hasSettings, tileLayout: hasSettings });
+          }
+        }
       } catch {}
       e.target.value = '';
     };
     reader.readAsText(file);
+  };
+
+  const applyImport = () => {
+    if (!importModal) return;
+    const { parsed, hasLinks, hasSettings } = importModal;
+    const result = {};
+    if (hasLinks && importSel.links) {
+      result.tiles = parsed.tiles.filter(t => t.name && t.url);
+    }
+    if (hasSettings && (importSel.theming || importSel.tileLayout)) {
+      const s = {};
+      if (importSel.theming && parsed.settings.background) s.background = parsed.settings.background;
+      if (importSel.theming && parsed.settings.shader) s.shader = parsed.settings.shader;
+      if (importSel.tileLayout && parsed.settings.tiles) s.tiles = parsed.settings.tiles;
+      if (Object.keys(s).length > 0) result.settings = s;
+    }
+    onImport(result);
+    setImportModal(null);
   };
 
   return (
@@ -189,7 +332,7 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
               <Upload className="w-3.5 h-3.5" />
               Import
             </button>
-            <input ref={importRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
+            <input ref={importRef} type="file" accept=".json" className="hidden" onChange={handleImportFile} />
           </div>
           <p className="text-[10px] text-white/25 leading-relaxed">
             Export saves your tiles as JSON. Import replaces all tiles — use an exported file as a template.
@@ -201,44 +344,12 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
         {/* ── PRESETS ── */}
         <section className="space-y-3">
           <h3 className={c.section}>Presets</h3>
-          <div className="grid grid-cols-2 gap-1.5">
-            {THEME_PRESETS.map(preset => (
-              <button
-                key={preset.name}
-                onClick={() => applyPreset(preset)}
-                className="flex items-center gap-2 px-2.5 py-2 rounded-xl cursor-pointer transition-all duration-150 text-left"
-                style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.07)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
-              >
-                <div className="w-3.5 h-3.5 rounded-full flex-shrink-0 ring-1 ring-white/10" style={{ background: preset.blobColor }} />
-                <span className="text-xs text-white/60 truncate">{preset.name}</span>
-              </button>
-            ))}
-          </div>
-
-          <p className={`${c.section} mt-1`}>Gradients</p>
-          <div className="grid grid-cols-2 gap-1.5">
-            {GRADIENT_PRESETS.map(preset => (
-              <button
-                key={preset.name}
-                onClick={() => applyPreset({ type: 'gradient', ...preset })}
-                className="flex items-center gap-2 px-2.5 py-2 rounded-xl cursor-pointer transition-all duration-150 text-left"
-                style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.07)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
-              >
-                <div className="w-3.5 h-3.5 rounded-full flex-shrink-0 ring-1 ring-white/10" style={{ background: preset.gradient }} />
-                <span className="text-xs text-white/60 truncate">{preset.name}</span>
-              </button>
-            ))}
-          </div>
+          <PresetDropdown
+            onSelect={item => {
+              if (item._type === 'gradient') applyPreset({ type: 'gradient', ...item });
+              else applyPreset(item);
+            }}
+          />
         </section>
 
         <SectionDivider />
@@ -255,10 +366,6 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
           {background.type === 'solid' && (
             <div className="space-y-3 pt-1">
               <ColorRow label="Base Color" value={background.color} onChange={v => set('background.color', v)} />
-              <Toggle label="Show Blobs" value={background.showBlobs !== false} onChange={v => set('background.showBlobs', v)} />
-              {background.showBlobs !== false && (
-                <ColorRow label="Blob Color" value={background.blobColor} onChange={v => set('background.blobColor', v)} />
-              )}
             </div>
           )}
 
@@ -324,6 +431,82 @@ export default function SettingsPanel({ settings, onClose, onUpdateSettings, til
         </section>
 
       </div>
+
+      {/* Import selection modal */}
+      <AnimatePresence>
+        {importModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/50"
+              onClick={() => setImportModal(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-72 rounded-2xl p-5 space-y-4"
+              style={{
+                background: 'rgba(12, 14, 28, 0.95)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                backdropFilter: 'blur(24px)',
+              }}
+            >
+              <div>
+                <p className="text-sm font-semibold text-white/90 mb-1">Import</p>
+                <p className="text-[11px] text-white/40">Choose what to import from the file.</p>
+              </div>
+              <div className="space-y-2.5">
+                {importModal.hasLinks && (
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input type="checkbox" checked={importSel.links} onChange={e => setImportSel(s => ({ ...s, links: e.target.checked }))}
+                      className="w-4 h-4 rounded accent-[#2596be] cursor-pointer" />
+                    <div>
+                      <p className="text-xs text-white/80">Links</p>
+                      <p className="text-[10px] text-white/35">{importModal.parsed.tiles?.length} tile{importModal.parsed.tiles?.length !== 1 ? 's' : ''}</p>
+                    </div>
+                  </label>
+                )}
+                {importModal.hasSettings && (
+                  <>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input type="checkbox" checked={importSel.theming} onChange={e => setImportSel(s => ({ ...s, theming: e.target.checked }))}
+                        className="w-4 h-4 rounded accent-[#2596be] cursor-pointer" />
+                      <div>
+                        <p className="text-xs text-white/80">Theming</p>
+                        <p className="text-[10px] text-white/35">Background &amp; shader</p>
+                      </div>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input type="checkbox" checked={importSel.tileLayout} onChange={e => setImportSel(s => ({ ...s, tileLayout: e.target.checked }))}
+                        className="w-4 h-4 rounded accent-[#2596be] cursor-pointer" />
+                      <div>
+                        <p className="text-xs text-white/80">Tile Layout</p>
+                        <p className="text-[10px] text-white/35">Size, columns, gap</p>
+                      </div>
+                    </label>
+                  </>
+                )}
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button onClick={() => setImportModal(null)}
+                  className="flex-1 py-2 rounded-xl text-xs text-white/50 hover:text-white/70 cursor-pointer transition-colors"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  Cancel
+                </button>
+                <button onClick={applyImport}
+                  className="flex-1 py-2 rounded-xl text-xs text-white font-medium cursor-pointer transition-colors"
+                  style={{ background: '#2596be' }}>
+                  Import
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
